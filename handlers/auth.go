@@ -87,6 +87,10 @@ func Login(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid email or password"})
 	}
 
+	if user.Password == nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "This account uses Google login"})
+	}
+
 	if !utils.CheckPassword(body.Password, *user.Password) {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid email or password"})
 	}

@@ -16,7 +16,9 @@ func main() {
 	}
 
 	config.ConnectDB()
-	app := fiber.New()
+	app := fiber.New(fiber.Config{
+		BodyLimit: 500 * 1024 * 1024, // 10 MB
+	})
 	middleware.SetupCors(app)
 	routes.SetupRoutes(app)
 
