@@ -19,7 +19,10 @@ func SetupRoutes(app *fiber.App) {
 
 	// video routes - upload needs auth , viewing is public
 	videos := app.Group("/videos")
+	videos.Get("/", handlers.GetVideos)
+	videos.Get("/:id", handlers.GetVideo)
+	videos.Get("/:id/stream-info", handlers.StreamInfo)
+	videos.Put("/:id", middleware.JWTProtected(), handlers.UpdateVideo)
 	videos.Post("/upload", middleware.JWTProtected(), handlers.UploadVideo)
-	app.Get("/videos/:id", handlers.GetVideo)
-	app.Get("/videos", handlers.GetVideos)
+
 }
