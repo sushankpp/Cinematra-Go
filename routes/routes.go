@@ -25,4 +25,9 @@ func SetupRoutes(app *fiber.App) {
 	videos.Put("/:id", middleware.JWTProtected(), handlers.UpdateVideo)
 	videos.Post("/upload", middleware.JWTProtected(), handlers.UploadVideo)
 
+	//comment routes - posting and deleting comments needs auth, viewing is public
+	app.Get("/videos/:id/comments", handlers.GetComments)
+	app.Post("/comments", middleware.JWTProtected(), handlers.PostComment)
+	app.Delete("/comments/:id", middleware.JWTProtected(), handlers.DeleteComment)
+
 }

@@ -293,7 +293,7 @@ func GetVideo(c fiber.Ctx) error {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := supabaseURL + "/rest/v1/videos?id=eq." + id + "&select=*"
+	url := supabaseURL + "/rest/v1/videos?id=eq." + id + "&select=*,users(first_name,last_name,picture)"
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)

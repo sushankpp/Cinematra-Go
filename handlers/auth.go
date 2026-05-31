@@ -55,13 +55,13 @@ func Register(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
 
-	isProduction := os.Getenv("ENV") == "production"
+	false := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   isProduction,
-		SameSite: "Lax",
+		Secure:   false,
+		SameSite: "None",
 		MaxAge:   60 * 60 * 24 * 7,
 	})
 
@@ -100,13 +100,13 @@ func Login(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
 
-	isProduction := os.Getenv("ENV") == "production"
+	false := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   isProduction,
-		SameSite: "Lax",
+		Secure:   false,
+		SameSite: "None",
 		MaxAge:   60 * 60 * 24 * 7,
 	})
 
@@ -136,8 +136,8 @@ func generateRandomState() string {
 
 func GoogleLogin(c fiber.Ctx) error {
 	state := generateRandomState()
-	isProduction := os.Getenv("ENV") == "production"
-	c.Cookie(&fiber.Cookie{Name: "oauth_state", Value: state, HTTPOnly: true, Secure: isProduction, SameSite: "Lax", MaxAge: 86400})
+	false := os.Getenv("ENV") == "production"
+	c.Cookie(&fiber.Cookie{Name: "oauth_state", Value: state, HTTPOnly: true, Secure: false, SameSite: "None", MaxAge: 86400})
 	url := getGoogleOAuthConfig().AuthCodeURL(state)
 	return c.Redirect().To(url)
 }
@@ -213,18 +213,18 @@ func GoogleCallback(c fiber.Ctx) error {
 		})
 	}
 
-	isProduction := os.Getenv("ENV") == "production"
+	false := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{Name: "oauth_state", Value: "", MaxAge: -1})
 
-	c.Cookie(&fiber.Cookie{Name: "token", Value: jwtToken, HTTPOnly: true, Secure: isProduction, SameSite: "Lax", MaxAge: 60 * 60 * 24 * 7})
+	c.Cookie(&fiber.Cookie{Name: "token", Value: jwtToken, HTTPOnly: true, Secure: false, SameSite: "None", MaxAge: 60 * 60 * 24 * 7})
 
 	return c.Redirect().To("http://localhost:3000/auth/callback")
 
 }
 
 func Logout(c fiber.Ctx) error {
-	isProduction := os.Getenv("ENV") == "production"
-	c.Cookie(&fiber.Cookie{Name: "token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: isProduction, SameSite: "Lax"})
+	false := os.Getenv("ENV") == "production"
+	c.Cookie(&fiber.Cookie{Name: "token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: false, SameSite: "None"})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Logged out successfully",
@@ -257,12 +257,12 @@ func Me(c fiber.Ctx) error {
 		})
 	}
 
-	isProduction := os.Getenv("ENV") == "production"
+	false := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{Name: "token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   isProduction,
-		SameSite: "Lax",
+		Secure:   false,
+		SameSite: "None",
 		MaxAge:   60 * 60 * 24 * 7,
 	})
 

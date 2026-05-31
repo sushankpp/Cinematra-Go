@@ -1,0 +1,107 @@
+package handlers
+
+import (
+	"bytes"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+
+	"github.com/gofiber/fiber/v3"
+)
+
+func PostComment(c fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+
+	var body struct {
+		VideoID string `json:"video_id"`
+		Content string `json:"content"`
+	}
+
+	if err := c.Bind().JSON(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	if body.VideoID == "" || body.Content == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "video_id and content are required"})
+	}
+
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
+
+	payload := fmt.Sprintf(`{"user_id": "%q", "video_id": "%q" , "content": "%q"}`, userID, body.VideoID, body.Content)
+
+	url := supabaseURL + "/rest/v1/comments"
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(payload)))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("apikey", serviceKey)
+	req.Header.Set("Authorization", "Bearer "+serviceKey)
+	req.Header.Set("Prefer", "return=representation")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to post comment"})
+	}
+
+	defer resp.Body.Close()
+	respBody, _ := io.ReadAll(resp.Body)
+
+	if resp.StatusCode != 201 {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Failed to post comment: %s", string(respBody))})
+	}
+
+	return c.Status(201).JSON(fiber.Map{"message": "comment posted successfully"})
+}
+
+func GetComments(c fiber.Ctx) error {
+	id := c.Params("id")
+	if id == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "video id is required"})
+	}
+
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
+
+	url := supabaseURL + "/rest/v1/comments?video_id=eq." + id + "&select=*,users(first_name,last_name,picture)&order=created_at.desc"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("apikey", serviceKey)
+	req.Header.Set("Authorization", "Bearer "+serviceKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch comments"})
+	}
+	defer resp.Body.Close()
+
+	body, _ := io.ReadAll(resp.Body)
+	return c.Status(200).Type("json").Send(body)
+}
+
+func DeleteComment(c fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	commentID := c.Params("id")
+
+	if commentID == "" || userID == "" {
+		return c.Status(400).JSON(fiber.Map{"error": "Comment ID and user ID are required"})
+	}
+
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
+
+	url := supabaseURL + "/rest/v1/comments?id=eq." + commentID + "&user_id=eq." + userID + "&select=*"
+	req, _ := http.NewRequest("DELETE", url, nil)
+	req.Header.Set("apikey", serviceKey)
+	req.Header.Set("Authorization", "Bearer "+serviceKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to delete comment"})
+	}
+	defer resp.Body.Close()
+	body, _ := io.ReadAll(resp.Body)
+	return c.Status(200).Type("json").Send(body)
+}
