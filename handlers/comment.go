@@ -29,7 +29,7 @@ func PostComment(c fiber.Ctx) error {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	payload := fmt.Sprintf(`{"user_id": "%q", "video_id": "%q" , "content": "%q"}`, userID, body.VideoID, body.Content)
+	payload := fmt.Sprintf(`{"user_id": %q, "video_id": %q, "content": %q}`, userID, body.VideoID, body.Content)
 
 	url := supabaseURL + "/rest/v1/comments"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(payload)))
@@ -51,7 +51,8 @@ func PostComment(c fiber.Ctx) error {
 	respBody, _ := io.ReadAll(resp.Body)
 
 	if resp.StatusCode != 201 {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Failed to post comment: %s", string(respBody))})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": fmt.Sprintf("Failed to post comment: %s", string(respBody)), "status": resp.StatusCode})
+
 	}
 
 	return c.Status(201).JSON(fiber.Map{"message": "comment posted successfully"})
