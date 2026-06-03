@@ -8,6 +8,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 
@@ -55,12 +56,12 @@ func Register(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
 
-	false := os.Getenv("ENV") == "production"
+	isProduction := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   false,
+		Secure:   isProduction,
 		SameSite: "None",
 		MaxAge:   60 * 60 * 24 * 7,
 	})
@@ -100,12 +101,12 @@ func Login(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
 
-	false := os.Getenv("ENV") == "production"
+	isProduction := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{
 		Name:     "token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   false,
+		Secure:   isProduction,
 		SameSite: "None",
 		MaxAge:   60 * 60 * 24 * 7,
 	})
@@ -136,8 +137,8 @@ func generateRandomState() string {
 
 func GoogleLogin(c fiber.Ctx) error {
 	state := generateRandomState()
-	false := os.Getenv("ENV") == "production"
-	c.Cookie(&fiber.Cookie{Name: "oauth_state", Value: state, HTTPOnly: true, Secure: false, SameSite: "None", MaxAge: 86400})
+	isProduction := os.Getenv("ENV") == "production"
+	c.Cookie(&fiber.Cookie{Name: "oauth_state", Value: state, HTTPOnly: true, Secure: isProduction, SameSite: "None", MaxAge: 86400})
 	url := getGoogleOAuthConfig().AuthCodeURL(state)
 	return c.Redirect().To(url)
 }
@@ -213,18 +214,18 @@ func GoogleCallback(c fiber.Ctx) error {
 		})
 	}
 
-	false := os.Getenv("ENV") == "production"
+	isProduction := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{Name: "oauth_state", Value: "", MaxAge: -1})
 
-	c.Cookie(&fiber.Cookie{Name: "token", Value: jwtToken, HTTPOnly: true, Secure: false, SameSite: "None", MaxAge: 60 * 60 * 24 * 7})
+	c.Cookie(&fiber.Cookie{Name: "token", Value: jwtToken, HTTPOnly: true, Secure: isProduction, SameSite: "None", MaxAge: 60 * 60 * 24 * 7})
 
 	return c.Redirect().To("http://localhost:3000/auth/callback")
 
 }
 
 func Logout(c fiber.Ctx) error {
-	false := os.Getenv("ENV") == "production"
-	c.Cookie(&fiber.Cookie{Name: "token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: false, SameSite: "None"})
+	isProduction := os.Getenv("ENV") == "production"
+	c.Cookie(&fiber.Cookie{Name: "token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: isProduction, SameSite: "None"})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"message": "Logged out successfully",
@@ -257,14 +258,143 @@ func Me(c fiber.Ctx) error {
 		})
 	}
 
-	false := os.Getenv("ENV") == "production"
+	isProduction := os.Getenv("ENV") == "production"
 	c.Cookie(&fiber.Cookie{Name: "token",
 		Value:    token,
 		HTTPOnly: true,
-		Secure:   false,
+		Secure:   isProduction,
 		SameSite: "None",
 		MaxAge:   60 * 60 * 24 * 7,
 	})
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"user": user,
+	})
+}
+
+func UpdateProfile(c fiber.Ctx) error {
+
+	token := c.Cookies("token")
+
+	if token == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized",
+		})
+	}
+
+	claims, err := utils.ValidateJWT(token)
+
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized user token doesn't match",
+		})
+	}
+
+	userId, ok := claims["user_id"].(string)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "Unauthorized user token doesn't match",
+		})
+	}
+
+	// IMPORTANT: use pointers for partial updates
+	var body struct {
+		FirstName *string `json:"first_name"`
+		LastName  *string `json:"last_name"`
+		Phone     *string `json:"phone"`
+		Password  *string `json:"password"`
+		Picture   *string `json:"picture"`
+	}
+
+	if err := c.Bind().JSON(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	// Handle password safely (only if provided)
+	var hashedPassword *string
+
+	if body.Password != nil && *body.Password != "" {
+
+		hash, err := utils.HashPassword(*body.Password)
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"error": "Failed to hash password",
+			})
+		}
+
+		hashedPassword = &hash
+	}
+
+	// If empty string is passed, treat it as NULL (ignore update)
+	if body.FirstName != nil && *body.FirstName == "" {
+		body.FirstName = nil
+	}
+	if body.LastName != nil && *body.LastName == "" {
+		body.LastName = nil
+	}
+	if body.Phone != nil && *body.Phone == "" {
+		body.Phone = nil
+	}
+	if body.Picture != nil && *body.Picture == "" {
+		body.Picture = nil
+	}
+
+	var user models.User
+
+	err = config.DB.QueryRow(
+		context.Background(),
+		`
+    UPDATE users
+    SET
+        first_name = COALESCE($1, first_name),
+        last_name  = COALESCE($2, last_name),
+        phone      = COALESCE($3, phone),
+        password   = COALESCE($4, password),
+        picture    = COALESCE($5, picture),
+		updated_at = NOW()
+    WHERE id = $6
+    RETURNING
+        id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        password,
+        picture,
+        provider,
+        provider_id,
+        created_at,
+        updated_at
+    `,
+		body.FirstName,
+		body.LastName,
+		body.Phone,
+		hashedPassword,
+		body.Picture,
+		userId,
+	).Scan(
+		&user.ID,
+		&user.FirstName,
+		&user.LastName,
+		&user.Email,
+		&user.Phone,
+		&user.Password,
+		&user.Picture,
+		&user.Provider,
+		&user.ProviderID,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+
+	if err != nil {
+		fmt.Println("UpdateProfile DB error:", err.Error())
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error":  "Failed to update user",
+			"detail": err.Error(),
+		})
+	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"user": user,

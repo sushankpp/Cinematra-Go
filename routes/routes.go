@@ -15,7 +15,8 @@ func SetupRoutes(app *fiber.App) {
 	auth.Post("/logout", handlers.Logout)
 	auth.Get("/google", handlers.GoogleLogin)
 	auth.Get("/google/callback", handlers.GoogleCallback)
-	auth.Get("/me", handlers.Me)
+	auth.Get("/me", middleware.JWTProtected(), handlers.Me)
+	auth.Patch("/update", middleware.JWTProtected(), handlers.UpdateProfile)
 
 	// video routes - upload needs auth , viewing is public
 	videos := app.Group("/videos")
