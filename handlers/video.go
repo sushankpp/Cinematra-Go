@@ -131,6 +131,8 @@ func UploadVideo(c fiber.Ctx) error {
 		}
 	}
 
+	fmt.Println(">>> video uploaded successfully with ID:", videoID)
+
 	return c.Status(201).JSON(fiber.Map{
 		"video_id":      videoID,
 		"title":         title,
@@ -288,6 +290,8 @@ func replaceVideoTags(videoID, tagIDs string) error {
 
 func IncrementVideoViews(c fiber.Ctx) error {
 	id := c.Params("id")
+	fmt.Println(">>> increment views called for id:", id)
+
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
@@ -440,6 +444,30 @@ func GetVideo(c fiber.Ctx) error {
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to fetch video: " + err.Error()})
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 406 {
+		return c.Status(404).JSON(fiber.Map{"error": "video not found"})
+	}
+	body, _ := io.ReadAll(resp.Body)
+	return c.Status(200).Type("json").Send(body)
+}
+
+func GetUserVideo(c fiber.Ctx) error {
+	id := c.Locals("userID").(string)
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
+
+	url := supabaseURL + "/rest/v1/videos" + "?user_id=eq." + id + "&select=*,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Set("apikey", serviceKey)
+	req.Header.Set("Authorization", "Bearer "+serviceKey)
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error ": "failed to fetch video: " + err.Error()})
 	}
 	defer resp.Body.Close()
 
