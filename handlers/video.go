@@ -211,6 +211,35 @@ func UpdateVideo(c fiber.Ctx) error {
 	return c.JSON(fiber.Map{"message": "video updated successfully"})
 }
 
+func DeleteVideo(c fiber.Ctx) error {
+	userID := c.Locals("userID").(string)
+	videoId := c.Params("id")
+
+	supabaseURL := os.Getenv("SUPABASE_URL")
+	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
+
+	url := supabaseURL + "/rest/v1/videos?id=eq." + videoId + "&user_id=eq." + userID
+	req, err := http.NewRequest("DELETE", url, nil)
+
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to create delete request: " + err.Error()})
+	}
+	req.Header.Set("Authorization", "Bearer "+serviceKey)
+	req.Header.Set("apikey", serviceKey)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to delete video: " + err.Error()})
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 204 {
+		body, _ := io.ReadAll(resp.Body)
+		return c.Status(500).JSON(fiber.Map{"error": "delete failed: " + string(body)})
+	}
+	return c.Status(200).JSON(fiber.Map{"success": true, "message": "Video deleted successfully"})
+}
+
 func patchVideoRow(videoID, userID string, updates map[string]interface{}) error {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
@@ -321,11 +350,11 @@ func IncrementVideoViews(c fiber.Ctx) error {
 
 func generateThumbnail(videoPath, outDir string) (string, error) {
 	thumbPath := filepath.Join(outDir, "thumbnail.jpg")
-	cmd := exec.Command("ffmpeg", "-i", videoPath, "-ss", "00:00:02.000", "-vframes", "1", "-vf", "scale=1280:720", "-q:v", "3", thumbPath)
+	cmd := exec.Command("ffmpeg", "-i", videoPath, "-ss", "00:00:02.000", "-vframes", "1", "-vf", "scale=640:360", "-q:v", "3", thumbPath)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
 	if err := cmd.Run(); err != nil {
-		cmd2 := exec.Command("ffmpeg", "-i", videoPath, "-ss", "00:00:00", "-vframes", "1", "-vf", "scale=1280:720", "-q:v", "3", thumbPath)
+		cmd2 := exec.Command("ffmpeg", "-i", videoPath, "-ss", "00:00:00", "-vframes", "1", "-vf", "scale=640:360", "-q:v", "3", thumbPath)
 		cmd2.Stderr = &stderr
 		if err2 := cmd2.Run(); err2 != nil {
 			return "", fmt.Errorf("ffmpeg thumbnail: %s", stderr.String())
@@ -410,8 +439,9 @@ func GetVideos(c fiber.Ctx) error {
 
 	url := supabaseURL + "/rest/v1/videos" +
 		"?status=eq.ready" +
-		"&select=*,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))" +
-		"&order=created_at.desc"
+		"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))" +
+		"&order=created_at.desc" +
+		"&limit=20"
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
@@ -434,7 +464,7 @@ func GetVideo(c fiber.Ctx) error {
 
 	url := supabaseURL + "/rest/v1/videos" +
 		"?id=eq." + id +
-		"&select=*,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+		"&select=id,title,description,storage_url,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("apikey", serviceKey)
@@ -459,7 +489,7 @@ func GetUserVideo(c fiber.Ctx) error {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := supabaseURL + "/rest/v1/videos" + "?user_id=eq." + id + "&select=*,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+	url := supabaseURL + "/rest/v1/videos" + "?user_id=eq." + id + "&select=id,title,description,thumbnail_url,user_id,created_at,release_year,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)

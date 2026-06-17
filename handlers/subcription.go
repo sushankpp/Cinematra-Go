@@ -115,7 +115,10 @@ func GetSubscriptions(c fiber.Ctx) error {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := fmt.Sprintf(supabaseURL+"/rest/v1/subscriptions?subscriber_id=eq.%s&channel_id=eq.%s", subscriberID, channelID)
+	url := supabaseURL + "/rest/v1/subscriptions" +
+		"?subscriber_id=eq." + subscriberID +
+		"&channel_id=eq." + channelID +
+		"&select=*,users!subscriptions_subscriber_id_fkey(id,first_name,last_name,picture)"
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {

@@ -27,6 +27,7 @@ func SetupRoutes(app *fiber.App) {
 	videos.Get("/:id/stream-info", handlers.StreamInfo)
 	videos.Put("/:id", middleware.JWTProtected(), handlers.UpdateVideo)
 	videos.Post("/:id/view", handlers.IncrementVideoViews)
+	videos.Delete("/:id", middleware.JWTProtected(), handlers.DeleteVideo)
 
 	//comment routes - posting and deleting comments needs auth, viewing is public
 	app.Get("/videos/:id/comments", handlers.GetComments)
@@ -40,4 +41,11 @@ func SetupRoutes(app *fiber.App) {
 	subscriptions.Get("/:channelId/count", handlers.GetSubscriberCount)
 	subscriptions.Get("/:channelId", middleware.JWTProtected(), handlers.GetSubscriptions)
 
+	//user preference route
+	app.Post("/preferences", middleware.JWTProtected(), handlers.SaveUserPreference)
+	app.Get("/preferences", middleware.JWTProtected(), handlers.GetUserPreference)
+
+	//watch history route
+	app.Get("/watch/history", middleware.JWTProtected(), handlers.GetWatchHistory)
+	app.Post("/watch/:id", middleware.JWTProtected(), handlers.WatchVideo)
 }

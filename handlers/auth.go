@@ -253,6 +253,8 @@ func Me(c fiber.Ctx) error {
 	err = config.DB.QueryRow(context.Background(), "select id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at from users where id = $1", userID["user_id"]).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
+		fmt.Println("Me DB error:", err)
+		fmt.Println("UserID from token:", userID["user_id"])
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to fetch user",
 		})
