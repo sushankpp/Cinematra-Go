@@ -14,6 +14,7 @@ import (
 type WatchRequest struct {
 	WatchDurationSeconds int  `json:"watch_duration_seconds"`
 	Completed            bool `json:"completed"`
+	VideoDurationSeconds int  `json:"video_duration_seconds"`
 }
 
 func WatchVideo(c fiber.Ctx) error {
@@ -25,39 +26,34 @@ func WatchVideo(c fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid request body"})
 	}
 
-	type payload struct {
-		UserId               string `json:"user_id"`
-		VideoId              string `json:"video_id"`
-		WatchDurationSeconds int    `json:"watch_duration_seconds"`
-		Completed            bool   `json:"completed"`
-		WatchedAt            string `json:"watched_at"`
-	}
-
-	body, err := json.Marshal(payload{
-		UserId:               userId,
-		VideoId:              videoId,
-		WatchDurationSeconds: req.WatchDurationSeconds,
-		Completed:            req.Completed,
-		WatchedAt:            (time.Now().Format(time.RFC3339)),
-	})
-
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "failed to build payload"})
-	}
-
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := supabaseURL + "/rest/v1/watch_history?no_conflict=user_id,video_id"
-	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	body := map[string]interface{}{
+		"user_id":                userId,
+		"video_id":               videoId,
+		"watch_duration_seconds": req.WatchDurationSeconds,
+		"completed":              req.Completed,
+		"watched_at":             time.Now().Format(time.RFC3339),
+	}
+	if req.VideoDurationSeconds > 0 {
+		body["video_duration_seconds"] = req.VideoDurationSeconds
+	}
+
+	payload, err := json.Marshal(body)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to build payload"})
 	}
 
+	url := supabaseURL + "/rest/v1/watch_history?on_conflict=user_id,video_id"
+	httpReq, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "failed to build request"})
+	}
 	httpReq.Header.Set("Authorization", "Bearer "+serviceKey)
 	httpReq.Header.Set("apikey", serviceKey)
 	httpReq.Header.Set("Content-Type", "application/json")
-	httpReq.Header.Set("Prefer", "resolution=merge-duplicates")
+	httpReq.Header.Set("Prefer", "resolution=merge-duplicates,return=minimal")
 
 	resp, err := http.DefaultClient.Do(httpReq)
 	if err != nil {
@@ -65,7 +61,7 @@ func WatchVideo(c fiber.Ctx) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 && resp.StatusCode != 201 {
+	if resp.StatusCode != 200 && resp.StatusCode != 201 && resp.StatusCode != 204 {
 		respBody, _ := io.ReadAll(resp.Body)
 		return c.Status(500).JSON(fiber.Map{"error": "failed to save watch history", "details": string(respBody)})
 	}
@@ -75,11 +71,13 @@ func WatchVideo(c fiber.Ctx) error {
 
 func GetWatchHistory(c fiber.Ctx) error {
 	userId := c.Locals("userID").(string)
-
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := supabaseURL + "/rest/v1/watch_history?user_id=eq." + userId + "&select=*,videos(id,title,thumbnail_url,storage_url,language,content_rating)&order=watched_at.desc"
+	url := supabaseURL + "/rest/v1/watch_history?user_id=eq." + userId +
+		"&select=*,videos(id,title,thumbnail_url,storage_url,language,content_rating)" +
+		"&order=watched_at.desc"
+
 	httpReq, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to build request"})

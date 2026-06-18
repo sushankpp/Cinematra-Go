@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/static"
 	"github.com/joho/godotenv"
 )
 
@@ -20,6 +21,7 @@ func main() {
 		BodyLimit: 500 * 1024 * 1024, // 10 MB
 	})
 	middleware.SetupCors(app)
+	app.Get("/media/*", static.New("./storage"))
 	routes.SetupRoutes(app)
 
 	log.Fatal(app.Listen(":8080"))

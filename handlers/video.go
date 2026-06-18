@@ -15,6 +15,33 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
+func saveToLocal(filePath, objectPath, folder string) (string, error) {
+	destDir := filepath.Join("./storage", folder, filepath.Dir(objectPath))
+	if err := os.MkdirAll(destDir, 0755); err != nil {
+		return "", err
+	}
+
+	dest := filepath.Join("./storage", folder, objectPath)
+	src, err := os.Open(filePath)
+	if err != nil {
+		return "", err
+	}
+	defer src.Close()
+
+	dst, err := os.Create(dest)
+	if err != nil {
+		return "", err
+	}
+	defer dst.Close()
+
+	if _, err := io.Copy(dst, src); err != nil {
+		return "", err
+	}
+
+	host := os.Getenv("SERVER_HOST")
+	return fmt.Sprintf("%s/media/%s/%s", host, folder, objectPath), nil
+}
+
 func UploadVideo(c fiber.Ctx) error {
 	title := c.FormValue("title")
 	description := c.FormValue("description")
@@ -49,7 +76,10 @@ func UploadVideo(c fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to save uploaded video"})
 	}
 
+	// ── Thumbnail ──────────────────────────────────────────────
+	baseObjPath := fmt.Sprintf("%s/%d", userID, time.Now().UnixNano())
 	var thumbnailURL string
+
 	userThumb, err := c.FormFile("Thumbnail")
 	if err == nil && userThumb != nil {
 		thumbPath := filepath.Join(tmpDir, userThumb.Filename)
@@ -57,9 +87,9 @@ func UploadVideo(c fiber.Ctx) error {
 			return c.Status(500).JSON(fiber.Map{"error": "failed to save uploaded thumbnail"})
 		}
 		thumbObjPath := fmt.Sprintf("%s/%d_thumb.jpg", userID, time.Now().UnixNano())
-		thumbnailURL, err = uploadToSupabase(thumbPath, thumbObjPath, "Thumbnails", "image/jpeg")
+		thumbnailURL, err = saveToLocal(thumbPath, thumbObjPath, "Thumbnails")
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "thumbnail upload failed: " + err.Error()})
+			return c.Status(500).JSON(fiber.Map{"error": "thumbnail save failed: " + err.Error()})
 		}
 	} else {
 		thumbPath, err := generateThumbnail(videoPath, tmpDir)
@@ -71,15 +101,15 @@ func UploadVideo(c fiber.Ctx) error {
 			return c.Status(500).JSON(fiber.Map{"error": "thumbnail generation failed: empty file"})
 		}
 		thumbObjPath := fmt.Sprintf("%s/%d_thumbnail.jpg", userID, time.Now().UnixNano())
-		thumbnailURL, err = uploadToSupabase(thumbPath, thumbObjPath, "Thumbnails", "image/jpeg")
+		thumbnailURL, err = saveToLocal(thumbPath, thumbObjPath, "Thumbnails")
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "thumbnail upload failed: " + err.Error()})
+			return c.Status(500).JSON(fiber.Map{"error": "thumbnail save failed: " + err.Error()})
 		}
 	}
 
-	supabaseURL := os.Getenv("SUPABASE_URL")
-	baseObjPath := fmt.Sprintf("%s/%d", userID, time.Now().UnixNano())
-	baseURL := fmt.Sprintf("%s/storage/v1/object/public/Videos/%s", supabaseURL, baseObjPath)
+	// ── HLS Generation ─────────────────────────────────────────
+	host := os.Getenv("SERVER_HOST")
+	baseURL := fmt.Sprintf("%s/media/Videos/%s", host, baseObjPath)
 
 	hlsDir := filepath.Join(tmpDir, "hls")
 	hlsResult, err := hls.GenerateHLS(videoPath, hlsDir, hls.DefaultQualities, baseURL)
@@ -87,36 +117,33 @@ func UploadVideo(c fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "HLS generation failed: " + err.Error()})
 	}
 
+	// ── Save master.m3u8 ───────────────────────────────────────
 	masterObjPath := fmt.Sprintf("%s/master.m3u8", baseObjPath)
-	masterURL, err := uploadToSupabase(hlsResult.MasterPlaylistPath, masterObjPath, "Videos", "application/x-mpegURL")
+	masterURL, err := saveToLocal(hlsResult.MasterPlaylistPath, masterObjPath, "Videos")
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "master playlist upload failed: " + err.Error()})
+		return c.Status(500).JSON(fiber.Map{"error": "master playlist save failed: " + err.Error()})
 	}
 
+	// ── Save all chunks ────────────────────────────────────────
 	for qualityName, qualityDir := range hlsResult.QualityDirs {
 		entries, _ := filepath.Glob(filepath.Join(qualityDir, "*"))
 		for _, entry := range entries {
 			filename := filepath.Base(entry)
 			objPath := fmt.Sprintf("%s/%s/%s", baseObjPath, qualityName, filename)
-			contentType := "application/x-mpegURL"
-			if filepath.Ext(filename) == ".ts" {
-				contentType = "video/MP2T"
-			}
-			if _, err := uploadToSupabase(entry, objPath, "Videos", contentType); err != nil {
+			if _, err := saveToLocal(entry, objPath, "Videos"); err != nil {
 				return c.Status(500).JSON(fiber.Map{
-					"error": fmt.Sprintf("chunk upload failed for %s/%s: %s", qualityName, filename, err.Error()),
+					"error": fmt.Sprintf("chunk save failed for %s/%s: %s", qualityName, filename, err.Error()),
 				})
 			}
 		}
 	}
 
-	// Save to DB first so we have videoID
+	// ── Save metadata to Supabase DB ───────────────────────────
 	videoID, err := saveVideoMetadata(userID, title, description, masterURL, thumbnailURL, language, contentRating, releaseYear)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to save video metadata: " + err.Error()})
 	}
 
-	// Now genres and tags can use the valid videoID
 	genreIDs := c.FormValue("genre_ids")
 	if genreIDs != "" {
 		if err := saveVideoGenres(videoID, genreIDs); err != nil {
@@ -179,9 +206,9 @@ func UpdateVideo(c fiber.Ctx) error {
 			return c.Status(500).JSON(fiber.Map{"error": "failed to save thumbnail"})
 		}
 		thumbObjPath := fmt.Sprintf("%s/%d_thumb.jpg", userID, time.Now().UnixNano())
-		thumbnailURL, err := uploadToSupabase(thumbPath, thumbObjPath, "Thumbnails", "image/jpeg")
+		thumbnailURL, err := saveToLocal(thumbPath, thumbObjPath, "Thumbnails")
 		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "thumbnail upload failed: " + err.Error()})
+			return c.Status(500).JSON(fiber.Map{"error": "thumbnail save failed: " + err.Error()})
 		}
 		updates["thumbnail_url"] = thumbnailURL
 	}
@@ -220,7 +247,6 @@ func DeleteVideo(c fiber.Ctx) error {
 
 	url := supabaseURL + "/rest/v1/videos?id=eq." + videoId + "&user_id=eq." + userID
 	req, err := http.NewRequest("DELETE", url, nil)
-
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to create delete request: " + err.Error()})
 	}
@@ -361,38 +387,6 @@ func generateThumbnail(videoPath, outDir string) (string, error) {
 		}
 	}
 	return thumbPath, nil
-}
-
-func uploadToSupabase(filePath, objectPath, bucket, contentType string) (string, error) {
-	supabaseURL := os.Getenv("SUPABASE_URL")
-	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
-
-	f, err := os.Open(filePath)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	url := fmt.Sprintf("%s/storage/v1/object/%s/%s", supabaseURL, bucket, objectPath)
-	req, err := http.NewRequest("POST", url, f)
-	if err != nil {
-		return "", err
-	}
-	req.Header.Set("Authorization", "Bearer "+serviceKey)
-	req.Header.Set("Content-Type", contentType)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		body, _ := io.ReadAll(resp.Body)
-		return "", fmt.Errorf("upload failed: %s", string(body))
-	}
-
-	return fmt.Sprintf("%s/storage/v1/object/public/%s/%s", supabaseURL, bucket, objectPath), nil
 }
 
 func saveVideoMetadata(userID, title, description, masterURL, thumbnailURL, language, contentRating string, releaseYear *int) (string, error) {
