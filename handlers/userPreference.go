@@ -12,10 +12,11 @@ import (
 )
 
 type PreferenceRequest struct {
-	PreferredGenres    []int    `json:"preferred_genres"`
-	PreferredTags      []int    `json:"preferred_tags"`
-	PreferredLanguages []string `json:"preferred_languages"`
-	PreferredRatings   []string `json:"preferred_ratings"`
+	PreferredGenres     []int    `json:"preferred_genres"`
+	PreferredTags       []int    `json:"preferred_tags"`
+	PreferredLanguages  []string `json:"preferred_languages"`
+	PreferredRatings    []string `json:"preferred_ratings"`
+	OnBoardingCompleted bool     `json:"onboarding_complete"`
 }
 
 func SaveUserPreference(c fiber.Ctx) error {
@@ -27,19 +28,21 @@ func SaveUserPreference(c fiber.Ctx) error {
 	}
 
 	type payload struct {
-		UserID             string   `json:"user_id"`
-		PreferredGenres    []int    `json:"preferred_genres"`
-		PreferredTags      []int    `json:"preferred_tags"`
-		PreferredLanguages []string `json:"preferred_languages"`
-		PreferredRatings   []string `json:"preferred_ratings"`
+		UserID              string   `json:"user_id"`
+		PreferredGenres     []int    `json:"preferred_genres"`
+		PreferredTags       []int    `json:"preferred_tags"`
+		PreferredLanguages  []string `json:"preferred_languages"`
+		PreferredRatings    []string `json:"preferred_ratings"`
+		OnBoardingCompleted bool     `json:"onboarding_complete"`
 	}
 
 	body, err := json.Marshal(payload{
-		UserID:             userID,
-		PreferredGenres:    req.PreferredGenres,
-		PreferredTags:      req.PreferredTags,
-		PreferredLanguages: req.PreferredLanguages,
-		PreferredRatings:   req.PreferredRatings,
+		UserID:              userID,
+		PreferredGenres:     req.PreferredGenres,
+		PreferredTags:       req.PreferredTags,
+		PreferredLanguages:  req.PreferredLanguages,
+		PreferredRatings:    req.PreferredRatings,
+		OnBoardingCompleted: true,
 	})
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to build payload"})

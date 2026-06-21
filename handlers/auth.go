@@ -234,15 +234,12 @@ func Logout(c fiber.Ctx) error {
 
 func Me(c fiber.Ctx) error {
 	token := c.Cookies("token")
-
 	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Unauthorized",
 		})
 	}
-
 	userID, err := utils.ValidateJWT(token)
-
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"error": "Unauthorized user token doesn't match",
@@ -250,8 +247,22 @@ func Me(c fiber.Ctx) error {
 	}
 
 	var user models.User
-	err = config.DB.QueryRow(context.Background(), "select id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at from users where id = $1", userID["user_id"]).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
+	var onboardingCompleted bool
 
+	query := `
+        select u.id, u.first_name, u.last_name, u.email, u.phone, u.password,
+               u.picture, u.provider, u.created_at, u.updated_at,
+               coalesce(up.onboarding_complete, false) as onboarding_complete
+        from users u
+        left join user_preferences up on up.user_id = u.id
+        where u.id = $1
+    `
+
+	err = config.DB.QueryRow(context.Background(), query, userID["user_id"]).Scan(
+		&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone,
+		&user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt,
+		&onboardingCompleted,
+	)
 	if err != nil {
 		fmt.Println("Me DB error:", err)
 		fmt.Println("UserID from token:", userID["user_id"])
@@ -270,7 +281,8 @@ func Me(c fiber.Ctx) error {
 	})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"user": user,
+		"user":                 user,
+		"onboarding_completed": onboardingCompleted,
 	})
 }
 
