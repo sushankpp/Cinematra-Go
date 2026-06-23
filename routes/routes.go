@@ -23,14 +23,20 @@ func SetupRoutes(app *fiber.App) {
 	videos.Get("/", handlers.GetVideos)
 	videos.Get("/mine", middleware.JWTProtected(), handlers.GetUserVideo)
 	videos.Post("/upload", middleware.JWTProtected(), handlers.UploadVideo)
+
+	videos.Get("/recommendations", middleware.JWTProtected(), handlers.GetRecommendations)
+	videos.Get("/trending", handlers.GetGlobalTrending)
+	videos.Get("/trending/me", middleware.JWTProtected(), handlers.GetPersonalizedTrending)
+
+	// Wildcard :id routes — these match anything, so they go last
 	videos.Get("/:id", handlers.GetVideo)
 	videos.Get("/:id/stream-info", handlers.StreamInfo)
+	videos.Get("/:id/comments", handlers.GetComments)
 	videos.Put("/:id", middleware.JWTProtected(), handlers.UpdateVideo)
 	videos.Post("/:id/view", handlers.IncrementVideoViews)
 	videos.Delete("/:id", middleware.JWTProtected(), handlers.DeleteVideo)
 
 	//comment routes - posting and deleting comments needs auth, viewing is public
-	app.Get("/videos/:id/comments", handlers.GetComments)
 	app.Post("/comments", middleware.JWTProtected(), handlers.PostComment)
 	app.Delete("/comments/:id", middleware.JWTProtected(), handlers.DeleteComment)
 
