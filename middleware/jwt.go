@@ -31,3 +31,22 @@ func JWTProtected() fiber.Handler {
 		return c.Next()
 	}
 }
+
+func OptionalJWT() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		token := c.Cookies("token")
+		if token == "" {
+			return c.Next()
+		}
+
+		claims, err := utils.ValidateJWT(token)
+		if err != nil {
+			return c.Next()
+		}
+
+		if userID, ok := claims["user_id"].(string); ok {
+			c.Locals("userID", userID)
+		}
+		return c.Next()
+	}
+}

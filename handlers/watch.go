@@ -55,7 +55,8 @@ func WatchVideo(c fiber.Ctx) error {
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Prefer", "resolution=merge-duplicates,return=minimal")
 
-	resp, err := http.DefaultClient.Do(httpReq)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(httpReq)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to save watch history"})
 	}
@@ -85,7 +86,8 @@ func GetWatchHistory(c fiber.Ctx) error {
 	httpReq.Header.Set("Authorization", "Bearer "+serviceKey)
 	httpReq.Header.Set("apikey", serviceKey)
 
-	resp, err := http.DefaultClient.Do(httpReq)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(httpReq)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to fetch watch history"})
 	}

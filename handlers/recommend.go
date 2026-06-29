@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 )
@@ -21,21 +22,27 @@ func GetRecommendations(c fiber.Ctx) error {
 		return c.Status(401).JSON(fiber.Map{"error": "Unauthorized"})
 	}
 
-	// Fetch all videos from the database to build the corpus
-	docs, err := recommend.FetchVideoDocs()
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch videos from database"})
-	}
-
-	corpus := recommend.BuildCorpus(docs)
+	// Pull precomputed corpus + trending data from cache (refreshed in background)
+	// instead of rebuilding the entire TF-IDF corpus on every request.
+	corpus, trendingScores, maxTrending := recommend.Cache.Snapshot()
 	if corpus == nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to build video corpus"})
+		return c.Status(503).JSON(fiber.Map{"error": "recommendations warming up, try again shortly"})
 	}
 
 	// Fetch user's watch history
 	watched, err := recommend.FetchWatchHistory(userID)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch watch history"})
+	}
+
+	normalizedTrend := func(videoID string) float64 {
+		if maxTrending <= 0 {
+			return 0.0
+		}
+		if s, exists := trendingScores[videoID]; exists {
+			return s / maxTrending
+		}
+		return 0.0
 	}
 
 	supabaseURL := os.Getenv("SUPABASE_URL")
@@ -50,7 +57,8 @@ func GetRecommendations(c fiber.Ctx) error {
 		req.Header.Set("Authorization", "Bearer "+serviceKey)
 		req.Header.Set("apikey", serviceKey)
 
-		resp, err := http.DefaultClient.Do(req)
+		var httpClient = &http.Client{Timeout: 10 * time.Second}
+		resp, err := httpClient.Do(req)
 		if err != nil {
 			return nil, err
 		}
@@ -67,7 +75,8 @@ func GetRecommendations(c fiber.Ctx) error {
 		return body, nil
 	}
 
-	// Cold start: User has no watch history — return latest videos with similarity_score: 0
+	// Cold start: User has no watch history — return latest videos with
+	// similarity_score: 0, but still attach trending_score / combined_score.
 	if len(watched) == 0 {
 		url := supabaseURL + "/rest/v1/videos" +
 			"?status=eq.ready" +
@@ -85,7 +94,13 @@ func GetRecommendations(c fiber.Ctx) error {
 			return c.Status(200).Type("json").Send(body)
 		}
 		for i := range coldStartVideos {
+			ts := 0.0
+			if id, ok := coldStartVideos[i]["id"].(string); ok {
+				ts = normalizedTrend(id)
+			}
 			coldStartVideos[i]["similarity_score"] = 0.0
+			coldStartVideos[i]["trending_score"] = math.Round(ts*10000) / 10000
+			coldStartVideos[i]["combined_score"] = math.Round(0.3*ts*10000) / 10000
 		}
 		return c.Status(200).JSON(coldStartVideos)
 	}
@@ -118,15 +133,17 @@ func GetRecommendations(c fiber.Ctx) error {
 			return c.Status(200).Type("json").Send(body)
 		}
 
-		// Attach similarity scores to fallback videos
+		// Attach similarity, trending, and combined scores to fallback videos
 		for i, v := range fallbackVideos {
 			if id, ok := v["id"].(string); ok {
+				sim := 0.0
 				if vec, exists := corpus.VideoVectors[id]; exists {
-					sim := recommend.CosineSimilarity(userProfile, vec.Vector)
-					fallbackVideos[i]["similarity_score"] = math.Round(sim*10000) / 10000
-				} else {
-					fallbackVideos[i]["similarity_score"] = 0.0
+					sim = recommend.CosineSimilarity(userProfile, vec.Vector)
 				}
+				ts := normalizedTrend(id)
+				fallbackVideos[i]["similarity_score"] = math.Round(sim*10000) / 10000
+				fallbackVideos[i]["trending_score"] = math.Round(ts*10000) / 10000
+				fallbackVideos[i]["combined_score"] = math.Round((0.7*sim+0.3*ts)*10000) / 10000
 			}
 		}
 
@@ -157,7 +174,7 @@ func GetRecommendations(c fiber.Ctx) error {
 	}
 
 	// Reorder to match the recommendation similarity descending sort order
-	// and attach similarity_score to each video
+	// and attach similarity_score / trending_score / combined_score to each video
 	videoMap := make(map[string]map[string]interface{})
 	for _, v := range videos {
 		if id, ok := v["id"].(string); ok {
@@ -168,7 +185,11 @@ func GetRecommendations(c fiber.Ctx) error {
 	orderedVideos := make([]map[string]interface{}, 0, len(recommendedIDs))
 	for _, id := range recommendedIDs {
 		if v, exists := videoMap[id]; exists {
-			v["similarity_score"] = math.Round(scoreMap[id]*10000) / 10000 // round to 4 decimal places
+			sim := scoreMap[id]
+			ts := normalizedTrend(id)
+			v["similarity_score"] = math.Round(sim*10000) / 10000
+			v["trending_score"] = math.Round(ts*10000) / 10000
+			v["combined_score"] = math.Round((0.7*sim+0.3*ts)*10000) / 10000
 			orderedVideos = append(orderedVideos, v)
 		}
 	}

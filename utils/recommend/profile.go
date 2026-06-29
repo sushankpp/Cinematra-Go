@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"time"
 )
 
 type watchRow struct {
@@ -31,7 +32,8 @@ func FetchWatchHistory(userId string) ([]WatchedVideo, error) {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("apikey", serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -88,16 +90,12 @@ func BuildUserProfile(watched []WatchedVideo, corpus *Corpus) map[string]float64
 			magnitude += score * score
 		}
 		magnitude = math.Sqrt(magnitude)
-
-		// Prevent division by zero
 		if magnitude == 0 {
 			continue
 		}
-
 		for word := range profile {
 			profile[word] /= magnitude
 		}
-
 	}
 
 	return profile

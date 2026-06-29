@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 )
@@ -51,7 +52,8 @@ func Subscribe(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("Prefer", "return=representation")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -90,7 +92,8 @@ func UnSubscribe(c fiber.Ctx) error {
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -128,7 +131,8 @@ func GetSubscriptions(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("Prefer", "return=representation")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -170,7 +174,8 @@ func GetSubscriberCount(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("Prefer", "count=exact")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{
 			"error": err.Error(),

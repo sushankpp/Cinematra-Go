@@ -4,7 +4,9 @@ import (
 	"cinematra-backend/config"
 	"cinematra-backend/middleware"
 	"cinematra-backend/routes"
+	"cinematra-backend/utils/recommend"
 	"log"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/static"
@@ -23,6 +25,7 @@ func main() {
 	middleware.SetupCors(app)
 	app.Get("/media/*", static.New("./storage"))
 	routes.SetupRoutes(app)
+	recommend.StartBackgroundRefresh(10 * time.Minute)
 
 	log.Fatal(app.Listen(":8080"))
 }

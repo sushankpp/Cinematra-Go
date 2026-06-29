@@ -40,6 +40,9 @@ func SetupRoutes(app *fiber.App) {
 	app.Post("/comments", middleware.JWTProtected(), handlers.PostComment)
 	app.Delete("/comments/:id", middleware.JWTProtected(), handlers.DeleteComment)
 
+	//channel route
+	app.Get("/channels", middleware.OptionalJWT(), handlers.GetChannels)
+
 	//subcribers routes - subscribing and unsubscribing needs auth, viewing is public
 	subscriptions := app.Group("/subscriptions")
 	subscriptions.Post("/", middleware.JWTProtected(), handlers.Subscribe)

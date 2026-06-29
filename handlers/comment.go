@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 )
@@ -42,7 +43,8 @@ func PostComment(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("Prefer", "return=representation")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to post comment"})
 	}
@@ -72,7 +74,8 @@ func GetComments(c fiber.Ctx) error {
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch comments"})
 	}
@@ -98,7 +101,8 @@ func DeleteComment(c fiber.Ctx) error {
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to delete comment"})
 	}

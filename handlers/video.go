@@ -253,7 +253,8 @@ func DeleteVideo(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("apikey", serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to delete video: " + err.Error()})
 	}
@@ -290,7 +291,8 @@ func patchVideoRow(videoID, userID string, updates map[string]interface{}) error
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -314,7 +316,8 @@ func replaceVideoGenres(videoID, genreIDs string) error {
 	}
 	delReq.Header.Set("Authorization", "Bearer "+serviceKey)
 	delReq.Header.Set("apikey", serviceKey)
-	resp, err := http.DefaultClient.Do(delReq)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(delReq)
 	if err != nil {
 		return err
 	}
@@ -334,7 +337,8 @@ func replaceVideoTags(videoID, tagIDs string) error {
 	}
 	delReq.Header.Set("Authorization", "Bearer "+serviceKey)
 	delReq.Header.Set("apikey", serviceKey)
-	resp, err := http.DefaultClient.Do(delReq)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(delReq)
 	if err != nil {
 		return err
 	}
@@ -360,7 +364,8 @@ func IncrementVideoViews(c fiber.Ctx) error {
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -413,7 +418,8 @@ func saveVideoMetadata(userID, title, description, masterURL, thumbnailURL, lang
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Prefer", "return=representation")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -441,7 +447,8 @@ func GetVideos(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("apikey", serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to fetch videos: " + err.Error()})
 	}
@@ -465,7 +472,8 @@ func GetVideo(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("Accept", "application/vnd.pgrst.object+json")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to fetch video: " + err.Error()})
 	}
@@ -489,7 +497,8 @@ func GetUserVideo(c fiber.Ctx) error {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("Accept", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error ": "failed to fetch video: " + err.Error()})
 	}
@@ -558,7 +567,8 @@ func saveVideoGenres(videoID, genreIDs string) error {
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}
@@ -586,7 +596,8 @@ func saveVideoTags(videoID, tagIDs string) error {
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 )
@@ -18,7 +19,7 @@ func fetchVideosByIDs(supabaseURL, serviceKey string, ids []string) ([]map[strin
 	url := supabaseURL + "/rest/v1/videos" +
 		"?id=in.(" + strings.Join(ids, ",") + ")" +
 		"&status=eq.ready" +
-		"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+		"&select=id,title,description,thumbnail_url,user_id,release_year,language,content_rating,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -27,7 +28,8 @@ func fetchVideosByIDs(supabaseURL, serviceKey string, ids []string) ([]map[strin
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("apikey", serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +78,8 @@ func fetchLatestVideos(supabaseURL, serviceKey string, limit int) ([]byte, error
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("apikey", serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -172,21 +175,9 @@ func GetPersonalizedTrending(c fiber.Ctx) error {
 		return c.Status(200).JSON(videos)
 	}
 
-	// Build corpus from all videos
-	docs, err := recommend.FetchVideoDocs()
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch video docs: " + err.Error()})
-	}
-
-	corpus := recommend.BuildCorpus(docs)
+	corpus, trendingScores, maxTrending := recommend.Cache.Snapshot()
 	if corpus == nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to build corpus"})
-	}
-
-	// Fetch global trending scores
-	trendingScores, err := recommend.FetchTrendingScore()
-	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch trending scores: " + err.Error()})
+		return c.Status(503).JSON(fiber.Map{"error": "recommendations warming up, try again shortly"})
 	}
 
 	// Build user content preference profile
@@ -196,14 +187,6 @@ func GetPersonalizedTrending(c fiber.Ctx) error {
 	watchedIDs := make(map[string]bool)
 	for _, w := range watched {
 		watchedIDs[w.VideoId] = true
-	}
-
-	// Find max trending score for normalization
-	maxTrending := 0.0
-	for _, s := range trendingScores {
-		if s > maxTrending {
-			maxTrending = s
-		}
 	}
 
 	// Score every unwatched video using hybrid formula

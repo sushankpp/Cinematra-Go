@@ -33,7 +33,8 @@ func FetchTrendingScore() (map[string]float64, error) {
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 	req.Header.Set("apikey", serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 //this file is used to fetch every video with its genres and tags and then built a combined document for each video. This combined document will be then used by tokenize to process.
@@ -39,7 +40,8 @@ func FetchVideoDocs() ([]VideoDoc, error) {
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
 
-	resp, err := http.DefaultClient.Do(req)
+	var httpClient = &http.Client{Timeout: 10 * time.Second}
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
