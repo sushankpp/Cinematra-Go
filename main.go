@@ -4,6 +4,7 @@ import (
 	"cinematra-backend/config"
 	"cinematra-backend/middleware"
 	"cinematra-backend/routes"
+	"cinematra-backend/utils/moderation"
 	"cinematra-backend/utils/recommend"
 	"log"
 	"time"
@@ -25,6 +26,10 @@ func main() {
 	middleware.SetupCors(app)
 	app.Get("/media/*", static.New("./storage"))
 	routes.SetupRoutes(app)
+
+	if err := moderation.LoadGlobalModel("utils/moderation/content_filter_model.json"); err != nil {
+		log.Fatal("Error loading content filter model:", err)
+	}
 	recommend.StartBackgroundRefresh(10 * time.Minute)
 
 	log.Fatal(app.Listen(":8080"))

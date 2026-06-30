@@ -2,10 +2,13 @@ package handlers
 
 import (
 	"bytes"
+	"cinematra-backend/utils/moderation"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"sort"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -27,10 +30,21 @@ func PostComment(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "video_id and content are required"})
 	}
 
+	result := moderation.Classify(moderation.GlobalModel, body.Content)
+
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	payload := fmt.Sprintf(`{"user_id": %q, "video_id": %q, "content": %q}`, userID, body.VideoID, body.Content)
+	payload, err := json.Marshal(map[string]interface{}{
+		"user_id":               userID,
+		"video_id":              body.VideoID,
+		"content":               body.Content,
+		"moderation_label":      result.Label,
+		"moderation_confidence": result.Confidence,
+	})
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to create payload"})
+	}
 
 	url := supabaseURL + "/rest/v1/comments"
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer([]byte(payload)))
@@ -68,8 +82,8 @@ func GetComments(c fiber.Ctx) error {
 
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
-
 	url := supabaseURL + "/rest/v1/comments?video_id=eq." + id + "&select=*,users(first_name,last_name,picture)&order=created_at.desc"
+
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)
@@ -80,9 +94,26 @@ func GetComments(c fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch comments"})
 	}
 	defer resp.Body.Close()
-
 	body, _ := io.ReadAll(resp.Body)
-	return c.Status(200).Type("json").Send(body)
+
+	var comments []map[string]interface{}
+	if err := json.Unmarshal(body, &comments); err != nil {
+		return c.Status(200).Type("json").Send(body)
+	}
+
+	labelRank := map[string]int{
+		"Safe":                   0,
+		"PotentiallyProblematic": 1,
+		"Problematic":            2,
+	}
+
+	sort.SliceStable(comments, func(i, j int) bool {
+		labelI, _ := comments[i]["moderation_label"].(string)
+		labelJ, _ := comments[j]["moderation_label"].(string)
+		return labelRank[labelI] < labelRank[labelJ]
+	})
+
+	return c.Status(200).JSON(comments)
 }
 
 func DeleteComment(c fiber.Ctx) error {
