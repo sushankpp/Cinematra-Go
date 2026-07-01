@@ -8,8 +8,14 @@ import (
 
 func JWTProtected() fiber.Handler {
 	return func(c fiber.Ctx) error {
-		// read token from cookie
+		// read token from cookie or Authorization header
 		token := c.Cookies("token")
+		if token == "" {
+			authHeader := c.Get("Authorization")
+			if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+				token = authHeader[7:]
+			}
+		}
 
 		if token == "" {
 			return c.Status(401).JSON(fiber.Map{"error": "unauthorized - no token"})
@@ -36,13 +42,21 @@ func OptionalJWT() fiber.Handler {
 	return func(c fiber.Ctx) error {
 		token := c.Cookies("token")
 		if token == "" {
+			authHeader := c.Get("Authorization")
+			if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+				token = authHeader[7:]
+			}
+		}
+		if token == "" {
 			return c.Next()
 		}
 
 		claims, err := utils.ValidateJWT(token)
 		if err != nil {
+			// fmt.Println("OptionalJWT: token invalid:", err)
 			return c.Next()
 		}
+		// fmt.Println("OptionalJWT claims:", claims)
 
 		if userID, ok := claims["user_id"].(string); ok {
 			c.Locals("userID", userID)

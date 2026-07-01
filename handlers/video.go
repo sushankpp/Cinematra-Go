@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"cinematra-backend/utils/hls"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -455,7 +456,59 @@ func GetVideos(c fiber.Ctx) error {
 	defer resp.Body.Close()
 
 	body, _ := io.ReadAll(resp.Body)
-	return c.Status(200).Type("json").Send(body)
+
+	var videos []map[string]interface{}
+	if err := json.Unmarshal(body, &videos); err != nil {
+		return c.Status(200).Type("json").Send(body)
+	}
+
+	//if user is logged in fetch user's watch progress
+	userID, ok := c.Locals("userID").(string)
+	fmt.Println("User Id: ", userID, "ok: ", ok)
+	if ok && userID != "" {
+		histURL := supabaseURL + "/rest/v1/watch_history" +
+			"?user_id=eq." + userID +
+			"&select=video_id,watch_duration_seconds,video_duration_seconds,completed,watched_at"
+
+		hReq, _ := http.NewRequest("GET", histURL, nil)
+		hReq.Header.Set("apikey", serviceKey)
+		hReq.Header.Set("Authorization", "Bearer "+serviceKey)
+
+		hResp, err := httpClient.Do(hReq)
+		if err == nil {
+			defer hResp.Body.Close()
+			hBody, _ := io.ReadAll(hResp.Body)
+
+			var history []map[string]interface{}
+			json.Unmarshal(hBody, &history)
+
+			// build lookup map: video_id → history row
+			progressMap := make(map[string]map[string]interface{})
+			for _, h := range history {
+				if vid, ok := h["video_id"].(string); ok {
+					progressMap[vid] = h
+				}
+			}
+
+			// merge progress into each video
+			for i, v := range videos {
+				if vid, ok := v["id"].(string); ok {
+					if h, exists := progressMap[vid]; exists {
+						videos[i]["watch_duration_seconds"] = h["watch_duration_seconds"]
+						videos[i]["video_duration_seconds"] = h["video_duration_seconds"]
+						videos[i]["completed"] = h["completed"]
+						videos[i]["last_watched"] = h["watched_at"]
+					} else {
+						videos[i]["watch_duration_seconds"] = nil
+						videos[i]["video_duration_seconds"] = nil
+						videos[i]["completed"] = nil
+						videos[i]["last_watched"] = nil
+					}
+				}
+			}
+		}
+	}
+	return c.Status(200).JSON(videos)
 }
 
 func GetVideo(c fiber.Ctx) error {
@@ -465,7 +518,7 @@ func GetVideo(c fiber.Ctx) error {
 
 	url := supabaseURL + "/rest/v1/videos" +
 		"?id=eq." + id +
-		"&select=id,title,description,storage_url,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+		"&select=id,title,description,storage_url,thumbnail_url,user_id,release_year,created_at,views,likes_count,dislikes_count,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("apikey", serviceKey)
@@ -483,7 +536,46 @@ func GetVideo(c fiber.Ctx) error {
 		return c.Status(404).JSON(fiber.Map{"error": "video not found"})
 	}
 	body, _ := io.ReadAll(resp.Body)
-	return c.Status(200).Type("json").Send(body)
+
+	var video map[string]interface{}
+	if err := json.Unmarshal(body, &video); err != nil {
+		return c.Status(200).Type("json").Send(body)
+	}
+
+	// merge logged-in user's reaction, if any
+	userID, ok := c.Locals("userID").(string)
+	fmt.Println("[DEBUG] GetVideo id:", id, "| userID:", userID, "| ok:", ok, "| Cookie token:", c.Cookies("token"), "| Auth header:", c.Get("Authorization"))
+	video["user_reaction"] = nil
+	if ok && userID != "" {
+		reactURL := supabaseURL + "/rest/v1/video_reactions" +
+			"?video_id=eq." + id +
+			"&user_id=eq." + userID +
+			"&select=reaction_type"
+
+		fmt.Println("GetVideo reaction check URL:", reactURL)
+
+		rReq, _ := http.NewRequest("GET", reactURL, nil)
+		rReq.Header.Set("apikey", serviceKey)
+		rReq.Header.Set("Authorization", "Bearer "+serviceKey)
+		rReq.Header.Set("Accept", "application/vnd.pgrst.object+json")
+
+		rResp, err := httpClient.Do(rReq)
+		if err == nil {
+			defer rResp.Body.Close()
+			if rResp.StatusCode == 200 {
+				rBody, _ := io.ReadAll(rResp.Body)
+				var reaction struct {
+					ReactionType string `json:"reaction_type"`
+				}
+				json.Unmarshal(rBody, &reaction)
+				video["user_reaction"] = reaction.ReactionType
+			}
+		} else {
+			fmt.Println("GetVideo reaction check failed:", err)
+		}
+	}
+
+	return c.Status(200).JSON(video)
 }
 
 func GetUserVideo(c fiber.Ctx) error {
