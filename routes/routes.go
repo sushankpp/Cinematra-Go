@@ -58,4 +58,7 @@ func SetupRoutes(app *fiber.App) {
 	//watch history route
 	app.Get("/watch/history", middleware.JWTProtected(), handlers.GetWatchHistory)
 	app.Post("/watch/:id", middleware.JWTProtected(), handlers.WatchVideo)
+
+	//dasboard analytics
+	app.Get("/dashboard/analytics", middleware.JWTProtected(), handlers.GetChannelAnalytics)
 }

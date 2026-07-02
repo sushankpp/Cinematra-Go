@@ -544,7 +544,7 @@ func GetVideo(c fiber.Ctx) error {
 
 	// merge logged-in user's reaction, if any
 	userID, ok := c.Locals("userID").(string)
-	fmt.Println("[DEBUG] GetVideo id:", id, "| userID:", userID, "| ok:", ok, "| Cookie token:", c.Cookies("token"), "| Auth header:", c.Get("Authorization"))
+	// fmt.Println("[DEBUG] GetVideo id:", id, "| userID:", userID, "| ok:", ok, "| Cookie token:", c.Cookies("token"), "| Auth header:", c.Get("Authorization"))
 	video["user_reaction"] = nil
 	if ok && userID != "" {
 		reactURL := supabaseURL + "/rest/v1/video_reactions" +
