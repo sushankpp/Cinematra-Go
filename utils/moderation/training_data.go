@@ -6,1204 +6,340 @@ type LabeledComment struct {
 }
 
 var TrainingData = []LabeledComment{
-	{
-		Text:  "finally someone explained it properly",
-		Label: "Safe",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "video unnecessarily long lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "same kura dherai repeat bhayo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "haha that joke caught me off guard 😂",
-		Label: "Safe",
-	},
-	{
-		Text:  "this deserves more views",
-		Label: "Safe",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "loan chahiyo bina document contact me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "could have been shorter",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "i made $1000 in one day ask me how",
-		Label: "Problematic",
-	},
-	{
-		Text:  "finally someone explained it properly",
-		Label: "Safe",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "why did you skip that part?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "background music ni ramro cha",
-		Label: "Safe",
-	},
-	{
-		Text:  "this actually helped me understand the topic",
-		Label: "Safe",
-	},
-	{
-		Text:  "bro yo kura chai milena jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "this felt a bit biased",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "yo information double check garnu parcha hola",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "explanation ali confusing lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "bro yo kura chai milena jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "bro yo kura chai milena jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "earn 5000 rupees daily from home dm me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "bro yo kura chai milena jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "100% profit guaranteed no risk",
-		Label: "Problematic",
-	},
-	{
-		Text:  "yo information double check garnu parcha hola",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "bro yo kura chai milena jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "i made $1000 in one day ask me how",
-		Label: "Problematic",
-	},
-	{
-		Text:  "free crypto giveaway click my profile",
-		Label: "Problematic",
-	},
-	{
-		Text:  "hot girls waiting click here",
-		Label: "Problematic",
-	},
-	{
-		Text:  "thanks for making this video",
-		Label: "Safe",
-	},
-	{
-		Text:  "yo part chai ekdam useful lagyo",
-		Label: "Safe",
-	},
-	{
-		Text:  "work from home and earn lakhs",
-		Label: "Problematic",
-	},
-	{
-		Text:  "respect for the effort put into this",
-		Label: "Safe",
-	},
-	{
-		Text:  "why did you skip that part?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "worst creator ever delete your channel",
-		Label: "Problematic",
-	},
-	{
-		Text:  "join my whatsapp group for signals",
-		Label: "Problematic",
-	},
-	{
-		Text:  "haha that joke caught me off guard 😂",
-		Label: "Safe",
-	},
-	{
-		Text:  "thanks for making this video",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "aaja naya kura sikna paye",
-		Label: "Safe",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "this felt a bit biased",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "investment secret chahiyo bhane inbox gara",
-		Label: "Problematic",
-	},
-	{
-		Text:  "great work team",
-		Label: "Safe",
-	},
-	{
-		Text:  "work from home and earn lakhs",
-		Label: "Problematic",
-	},
-	{
-		Text:  "i made $1000 in one day ask me how",
-		Label: "Problematic",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "next part kaile aauxa?",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing ali distracting lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "free crypto giveaway click my profile",
-		Label: "Problematic",
-	},
-	{
-		Text:  "click link in bio for free money",
-		Label: "Problematic",
-	},
-	{
-		Text:  "click link in bio for free money",
-		Label: "Problematic",
-	},
-	{
-		Text:  "great work team",
-		Label: "Safe",
-	},
-	{
-		Text:  "click link in bio for free money",
-		Label: "Problematic",
-	},
-	{
-		Text:  "join my whatsapp group for signals",
-		Label: "Problematic",
-	},
-	{
-		Text:  "source haru mention gareko bhaye ramro hunthyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "go disappear from youtube",
-		Label: "Problematic",
-	},
-	{
-		Text:  "this actually helped me understand the topic",
-		Label: "Safe",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "video unnecessarily long lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "next part kaile aauxa?",
-		Label: "Safe",
-	},
-	{
-		Text:  "thumbnail ali misleading jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "click link in bio for free money",
-		Label: "Problematic",
-	},
-	{
-		Text:  "hot girls waiting click here",
-		Label: "Problematic",
-	},
-	{
-		Text:  "watched till the end, worth it",
-		Label: "Safe",
-	},
-	{
-		Text:  "this actually helped me understand the topic",
-		Label: "Safe",
-	},
-	{
-		Text:  "haha that joke caught me off guard 😂",
-		Label: "Safe",
-	},
-	{
-		Text:  "finally someone explained it properly",
-		Label: "Safe",
-	},
-	{
-		Text:  "next part kaile aauxa?",
-		Label: "Safe",
-	},
-	{
-		Text:  "respect for the effort put into this",
-		Label: "Safe",
-	},
-	{
-		Text:  "video unnecessarily long lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "same kura dherai repeat bhayo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "haha that joke caught me off guard 😂",
-		Label: "Safe",
-	},
-	{
-		Text:  "comment section ta war zone bhayexa 😅",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "audio ali low thiyo tara content ramro thiyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "thumbnail ali misleading jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "work from home and earn lakhs",
-		Label: "Problematic",
-	},
-	{
-		Text:  "video ekdam ramro xa dai 🔥",
-		Label: "Safe",
-	},
-	{
-		Text:  "this deserves more views",
-		Label: "Safe",
-	},
-	{
-		Text:  "could have been shorter",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "video ekdam ramro xa dai 🔥",
-		Label: "Safe",
-	},
-	{
-		Text:  "next part kaile aauxa?",
-		Label: "Safe",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "aaja naya kura sikna paye",
-		Label: "Safe",
-	},
-	{
-		Text:  "free crypto giveaway click my profile",
-		Label: "Problematic",
-	},
-	{
-		Text:  "visit my profile for betting tips",
-		Label: "Problematic",
-	},
-	{
-		Text:  "expected more details on this topic",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "aaja naya kura sikna paye",
-		Label: "Safe",
-	},
-	{
-		Text:  "audio ali low thiyo tara content ramro thiyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "work from home and earn lakhs",
-		Label: "Problematic",
-	},
-	{
-		Text:  "subscribe my channel and i will subscribe back",
-		Label: "Problematic",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "visit my profile for betting tips",
-		Label: "Problematic",
-	},
-	{
-		Text:  "i made $1000 in one day ask me how",
-		Label: "Problematic",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "why did you skip that part?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "aaja naya kura sikna paye",
-		Label: "Safe",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "not sure if this is correct",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "join my whatsapp group for signals",
-		Label: "Problematic",
-	},
-	{
-		Text:  "yo part chai ekdam useful lagyo",
-		Label: "Safe",
-	},
-	{
-		Text:  "i made $1000 in one day ask me how",
-		Label: "Problematic",
-	},
-	{
-		Text:  "join my whatsapp group for signals",
-		Label: "Problematic",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "loan chahiyo bina document contact me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "investment secret chahiyo bhane inbox gara",
-		Label: "Problematic",
-	},
-	{
-		Text:  "finally someone explained it properly",
-		Label: "Safe",
-	},
-	{
-		Text:  "this actually helped me understand the topic",
-		Label: "Safe",
-	},
-	{
-		Text:  "why did you skip that part?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "pace ali fast bhayo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "not sure if this is correct",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "respect for the effort put into this",
-		Label: "Safe",
-	},
-	{
-		Text:  "worst creator ever delete your channel",
-		Label: "Problematic",
-	},
-	{
-		Text:  "yo information double check garnu parcha hola",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "keep uploading videos like this bro",
-		Label: "Safe",
-	},
-	{
-		Text:  "explanation ali confusing lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "visit my profile for betting tips",
-		Label: "Problematic",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "editing ali distracting lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "i made $1000 in one day ask me how",
-		Label: "Problematic",
-	},
-	{
-		Text:  "you're an idiot",
-		Label: "Problematic",
-	},
-	{
-		Text:  "finally someone explained it properly",
-		Label: "Safe",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "subscribed after watching this",
-		Label: "Safe",
-	},
-	{
-		Text:  "bro yo kura chai milena jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "bro yo kura chai milena jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "go disappear from youtube",
-		Label: "Problematic",
-	},
-	{
-		Text:  "haha that joke caught me off guard 😂",
-		Label: "Safe",
-	},
-	{
-		Text:  "subscribe my channel and i will subscribe back",
-		Label: "Problematic",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "not sure if this is correct",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "expected more details on this topic",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "bhai timro content underrated xa",
-		Label: "Safe",
-	},
-	{
-		Text:  "comment section ta war zone bhayexa 😅",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "background music ni ramro cha",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing ali distracting lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "watched till the end, worth it",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "subscribe my channel and i will subscribe back",
-		Label: "Problematic",
-	},
-	{
-		Text:  "100% profit guaranteed no risk",
-		Label: "Problematic",
-	},
-	{
-		Text:  "same kura dherai repeat bhayo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "source haru mention gareko bhaye ramro hunthyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "explanation ali confusing lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "quality content as always",
-		Label: "Safe",
-	},
-	{
-		Text:  "this actually helped me understand the topic",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing ali distracting lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "great work team",
-		Label: "Safe",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "watched till the end, worth it",
-		Label: "Safe",
-	},
-	{
-		Text:  "free crypto giveaway click my profile",
-		Label: "Problematic",
-	},
-	{
-		Text:  "check my channel for free followers",
-		Label: "Problematic",
-	},
-	{
-		Text:  "bhai timro content underrated xa",
-		Label: "Safe",
-	},
-	{
-		Text:  "audio ali low thiyo tara content ramro thiyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "thanks for making this video",
-		Label: "Safe",
-	},
-	{
-		Text:  "investment secret chahiyo bhane inbox gara",
-		Label: "Problematic",
-	},
-	{
-		Text:  "bhai timro content underrated xa",
-		Label: "Safe",
-	},
-	{
-		Text:  "thumbnail ali misleading jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "check my channel for free followers",
-		Label: "Problematic",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "click link in bio for free money",
-		Label: "Problematic",
-	},
-	{
-		Text:  "win free iphone now limited offer",
-		Label: "Problematic",
-	},
-	{
-		Text:  "go disappear from youtube",
-		Label: "Problematic",
-	},
-	{
-		Text:  "loan chahiyo bina document contact me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "video ekdam ramro xa dai 🔥",
-		Label: "Safe",
-	},
-	{
-		Text:  "explanation ali confusing lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "free recharge claim now",
-		Label: "Problematic",
-	},
-	{
-		Text:  "audio ali low thiyo tara content ramro thiyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "comment section ta war zone bhayexa 😅",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "great work team",
-		Label: "Safe",
-	},
-	{
-		Text:  "keep uploading videos like this bro",
-		Label: "Safe",
-	},
-	{
-		Text:  "respect for the effort put into this",
-		Label: "Safe",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "same kura dherai repeat bhayo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "next part kaile aauxa?",
-		Label: "Safe",
-	},
-	{
-		Text:  "background music ni ramro cha",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "source haru mention gareko bhaye ramro hunthyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "this deserves more views",
-		Label: "Safe",
-	},
-	{
-		Text:  "bhai timro content underrated xa",
-		Label: "Safe",
-	},
-	{
-		Text:  "investment secret chahiyo bhane inbox gara",
-		Label: "Problematic",
-	},
-	{
-		Text:  "free recharge claim now",
-		Label: "Problematic",
-	},
-	{
-		Text:  "why did you skip that part?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "earn 5000 rupees daily from home dm me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "source haru mention gareko bhaye ramro hunthyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "not sure if this is correct",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "subscribe my channel and i will subscribe back",
-		Label: "Problematic",
-	},
-	{
-		Text:  "respect for the effort put into this",
-		Label: "Safe",
-	},
-	{
-		Text:  "this felt a bit biased",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "same kura dherai repeat bhayo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "work from home and earn lakhs",
-		Label: "Problematic",
-	},
-	{
-		Text:  "quality paila ko video jasto lagena",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "keep uploading videos like this bro",
-		Label: "Safe",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "title herda arkai expect gareko thiye",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "why did you skip that part?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "video unnecessarily long lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "worst creator ever delete your channel",
-		Label: "Problematic",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "subscribe my channel and i will subscribe back",
-		Label: "Problematic",
-	},
-	{
-		Text:  "subscribe my channel and i will subscribe back",
-		Label: "Problematic",
-	},
-	{
-		Text:  "free recharge claim now",
-		Label: "Problematic",
-	},
-	{
-		Text:  "quality paila ko video jasto lagena",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "next part kaile aauxa?",
-		Label: "Safe",
-	},
-	{
-		Text:  "thanks for making this video",
-		Label: "Safe",
-	},
-	{
-		Text:  "explanation ali confusing lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "win free iphone now limited offer",
-		Label: "Problematic",
-	},
-	{
-		Text:  "camera focus issue thiyo ki?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "win free iphone now limited offer",
-		Label: "Problematic",
-	},
-	{
-		Text:  "background music ni ramro cha",
-		Label: "Safe",
-	},
-	{
-		Text:  "investment secret chahiyo bhane inbox gara",
-		Label: "Problematic",
-	},
-	{
-		Text:  "this deserves more views",
-		Label: "Safe",
-	},
-	{
-		Text:  "thumbnail ali misleading jasto lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "video ekdam ramro xa dai 🔥",
-		Label: "Safe",
-	},
-	{
-		Text:  "yo part chai ekdam useful lagyo",
-		Label: "Safe",
-	},
-	{
-		Text:  "editing ali distracting lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "respect for the effort put into this",
-		Label: "Safe",
-	},
-	{
-		Text:  "title herda arkai expect gareko thiye",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "subscribed after watching this",
-		Label: "Safe",
-	},
-	{
-		Text:  "bahut accha video tha, maza aa gaya",
-		Label: "Safe",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "investment secret chahiyo bhane inbox gara",
-		Label: "Problematic",
-	},
-	{
-		Text:  "could have been shorter",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "expected more details on this topic",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "yo information double check garnu parcha hola",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "earn 5000 rupees daily from home dm me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "loan chahiyo bina document contact me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "expected more details on this topic",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "hot girls waiting click here",
-		Label: "Problematic",
-	},
-	{
-		Text:  "audio ali low thiyo tara content ramro thiyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "same kura dherai repeat bhayo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "hot girls waiting click here",
-		Label: "Problematic",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "telegram ma message gara easy income ko lagi",
-		Label: "Problematic",
-	},
-	{
-		Text:  "bahut accha video tha, maza aa gaya",
-		Label: "Safe",
-	},
-	{
-		Text:  "click link in bio for free money",
-		Label: "Problematic",
-	},
-	{
-		Text:  "editing was clean and smooth",
-		Label: "Safe",
-	},
-	{
-		Text:  "explanation ali confusing lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "video unnecessarily long lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "subscribed after watching this",
-		Label: "Safe",
-	},
-	{
-		Text:  "check my channel for free followers",
-		Label: "Problematic",
-	},
-	{
-		Text:  "i made $1000 in one day ask me how",
-		Label: "Problematic",
-	},
-	{
-		Text:  "video unnecessarily long lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "go disappear from youtube",
-		Label: "Problematic",
-	},
-	{
-		Text:  "background music ni ramro cha",
-		Label: "Safe",
-	},
-	{
-		Text:  "you're an idiot",
-		Label: "Problematic",
-	},
-	{
-		Text:  "worst creator ever delete your channel",
-		Label: "Problematic",
-	},
-	{
-		Text:  "not sure if this is correct",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "you're an idiot",
-		Label: "Problematic",
-	},
-	{
-		Text:  "could have been shorter",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "respect for the effort put into this",
-		Label: "Safe",
-	},
-	{
-		Text:  "click link in bio for free money",
-		Label: "Problematic",
-	},
-	{
-		Text:  "title herda arkai expect gareko thiye",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "watched till the end, worth it",
-		Label: "Safe",
-	},
-	{
-		Text:  "why did you skip that part?",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "you're an idiot",
-		Label: "Problematic",
-	},
-	{
-		Text:  "aaja naya kura sikna paye",
-		Label: "Safe",
-	},
-	{
-		Text:  "free crypto giveaway click my profile",
-		Label: "Problematic",
-	},
-	{
-		Text:  "hot girls waiting click here",
-		Label: "Problematic",
-	},
-	{
-		Text:  "could have been shorter",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "bhai timro content underrated xa",
-		Label: "Safe",
-	},
-	{
-		Text:  "background music ni ramro cha",
-		Label: "Safe",
-	},
-	{
-		Text:  "comment section ta war zone bhayexa 😅",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "worst creator ever delete your channel",
-		Label: "Problematic",
-	},
-	{
-		Text:  "video unnecessarily long lagyo",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "loan chahiyo bina document contact me",
-		Label: "Problematic",
-	},
-	{
-		Text:  "thanks for making this video",
-		Label: "Safe",
-	},
-	{
-		Text:  "work from home and earn lakhs",
-		Label: "Problematic",
-	},
-	{
-		Text:  "comment section ta war zone bhayexa 😅",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "bhai timro content underrated xa",
-		Label: "Safe",
-	},
-	{
-		Text:  "voice clear ra explanation ni ramro",
-		Label: "Safe",
-	},
-	{
-		Text:  "bahut accha video tha, maza aa gaya",
-		Label: "Safe",
-	},
-	{
-		Text:  "keep uploading videos like this bro",
-		Label: "Safe",
-	},
-	{
-		Text:  "comment section ta war zone bhayexa 😅",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "i disagree with some points here",
-		Label: "PotentiallyProblematic",
-	},
-	{
-		Text:  "investment secret chahiyo bhane inbox gara",
-		Label: "Problematic",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "keep uploading videos like this bro",
-		Label: "Safe",
-	},
-	{
-		Text:  "check my channel for free followers",
-		Label: "Problematic",
-	},
-	{
-		Text:  "yo part chai ekdam useful lagyo",
-		Label: "Safe",
-	},
-	{
-		Text:  "this deserves more views",
-		Label: "Safe",
-	},
-	{
-		Text:  "nobody likes your videos",
-		Label: "Problematic",
-	},
-	{
-		Text:  "work from home and earn lakhs",
-		Label: "Problematic",
-	},
+	// ==========================================
+	// SAFE (English, Romanized Nepali, Devanagari, Mixed, Descriptions)
+	// ==========================================
+	// English Safe
+	{Text: "finally someone explained it properly", Label: "Safe"},
+	{Text: "editing was clean and smooth", Label: "Safe"},
+	{Text: "haha that joke caught me off guard", Label: "Safe"},
+	{Text: "this deserves more views", Label: "Safe"},
+	{Text: "thanks for making this video", Label: "Safe"},
+	{Text: "respect for the effort put into this", Label: "Safe"},
+	{Text: "one of the best tutorials on this topic", Label: "Safe"},
+	{Text: "the sound design and transitions are incredible", Label: "Safe"},
+	{Text: "subscribed immediately, keep up the amazing work", Label: "Safe"},
+	{Text: "very informative and well structured explanation", Label: "Safe"},
+	{Text: "i learned so much from this single video", Label: "Safe"},
+	{Text: "great storytelling, looking forward to the next part", Label: "Safe"},
+	{Text: "the cinematography and color grading look cinema grade", Label: "Safe"},
+	{Text: "thank you brother for sharing your knowledge with us", Label: "Safe"},
+	{Text: "such a wholesome and inspiring video to watch", Label: "Safe"},
+	{Text: "loved the presentation and clear breakdown of concepts", Label: "Safe"},
+	{Text: "well researched documentary, really enjoyed it", Label: "Safe"},
+	{Text: "keep creating quality content like this", Label: "Safe"},
+	{Text: "clear audio, sharp video, and great pacing", Label: "Safe"},
+	{Text: "honestly the best creator in this niche right now", Label: "Safe"},
+	{Text: "thank you for addressing this important topic", Label: "Safe"},
+	{Text: "super helpful walkthrough, solved my problem instantly", Label: "Safe"},
+	{Text: "pure dedication, you definitely deserve 100k subs", Label: "Safe"},
+	{Text: "the background music fits the mood so well", Label: "Safe"},
+	{Text: "brilliant visual effects and sound mixing", Label: "Safe"},
+	{Text: "loved every second of this masterpiece", Label: "Safe"},
+	{Text: "your voice modulation and narration are so calming", Label: "Safe"},
+	{Text: "very concise and directly to the point", Label: "Safe"},
+	{Text: "waiting eagerly for episode 2", Label: "Safe"},
+	{Text: "exceptional work by the whole production team", Label: "Safe"},
+
+	// Romanized Nepali Safe
+	{Text: "ekdam ramro video bro keep it up", Label: "Safe"},
+	{Text: "dherai useful information thiyo thank you", Label: "Safe"},
+	{Text: "yo video herera dherai kura sikna paiyo", Label: "Safe"},
+	{Text: "voiceover ra editing babbal cha hai", Label: "Safe"},
+	{Text: "aaja ko vlog ekdam majja aayo herna", Label: "Safe"},
+	{Text: "bich ko joke le haseko hasei banayo", Label: "Safe"},
+	{Text: "nepali youtube ma yesto quality content chahiyeko thiyo", Label: "Safe"},
+	{Text: "dherai mehenat gareko dekhincha dai respect", Label: "Safe"},
+	{Text: "ramro lagyo bro timro explanation style", Label: "Safe"},
+	{Text: "dherai din pachi ramro video herna paiyo", Label: "Safe"},
+	{Text: "sadhai yestai ramro content banaudai jau", Label: "Safe"},
+	{Text: "yo topic ma nepali ma bujhaune timi matra ho", Label: "Safe"},
+	{Text: "video ko cinematography ekdam kadak cha", Label: "Safe"},
+	{Text: "dherai ramro prayas dai support cha hamro", Label: "Safe"},
+	{Text: "story presentation ekdum captivating lagyo", Label: "Safe"},
+	{Text: "timro bolne shaili ekdam natural cha", Label: "Safe"},
+	{Text: "family sanga basera herna milne ramro video", Label: "Safe"},
+	{Text: "dherai ramro kura share garnu bhayo dhanyabad", Label: "Safe"},
+	{Text: "sound quality ra camera work dherai ramro cha", Label: "Safe"},
+	{Text: "mero sathi haru lai pani share gareko chu", Label: "Safe"},
+	{Text: "sabai kura clear bhayo bro thank you so much", Label: "Safe"},
+	{Text: "timro hard work le ek din thulo safalta milcha", Label: "Safe"},
+	{Text: "dherai inspiring thiyo aaja ko episode", Label: "Safe"},
+	{Text: "nepali content creator haru ma timi top ma chau", Label: "Safe"},
+	{Text: "kasto majjale step by step sikaunu bhayo", Label: "Safe"},
+	{Text: "mitho prastuti bro keep going", Label: "Safe"},
+	{Text: "video herda time gayeko thaha nai bhayena", Label: "Safe"},
+	{Text: "sacho kura bolnu bhayo bro dherai ramro", Label: "Safe"},
+	{Text: "visual ra background score ekdam match gareko cha", Label: "Safe"},
+	{Text: "proud of you bro nepali content lai agadi badhaudai chau", Label: "Safe"},
+
+	// Devanagari Nepali Safe
+	{Text: "धेरै राम्रो भिडियो ब्रो, किप इट अप", Label: "Safe"},
+	{Text: "एकदमै जानकारीमूलक र उपयोगी प्रस्तुति", Label: "Safe"},
+	{Text: "तपाईंको मेहनतको उच्च सम्मान छ", Label: "Safe"},
+	{Text: "नेपाली युट्युबमा यस्तै गुणस्तरीय सामग्रीको खाँचो थियो", Label: "Safe"},
+	{Text: "सजिलो भाषामा बुझाइदिनु भएकोमा धेरै धेरै धन्यवाद", Label: "Safe"},
+	{Text: "भिडियो हेर्दा निकै आनन्द आयो, निरन्तरता दिनुहोला", Label: "Safe"},
+	{Text: "सम्पादन र आवाजको स्तर निकै उत्कृष्ट छ", Label: "Safe"},
+	{Text: "मेरो मनपर्ने युट्युबर, सधैं राम्रो भिडियो ल्याउनुहुन्छ", Label: "Safe"},
+	{Text: "सकारात्मक सन्देश दिने भिडियो, मन पर्यो", Label: "Safe"},
+	{Text: "सच्चा र सत्य कुरा बोल्नुभयो, तपाईंसँग सहमत छु", Label: "Safe"},
+	{Text: "यति राम्रो भिडियो बनाउनु भएकोमा आभार व्यक्त गर्दछु", Label: "Safe"},
+	{Text: "हरेक भिडियोबाट केही न केही नयाँ ज्ञान पाइन्छ", Label: "Safe"},
+	{Text: "क्यामेराको काम र दृश्यहरू मनमोहक छन्", Label: "Safe"},
+	{Text: "परिवारसँग बसेर हेर्न सकिने सभ्य भिडियो", Label: "Safe"},
+	{Text: "अगामी दिनमा पनि यस्तै राम्रा सामग्रीको अपेक्षा गर्दछु", Label: "Safe"},
+	{Text: "धेरै मिहिनेत गर्नुभएको छ, सधैं समर्थन रहनेछ", Label: "Safe"},
+	{Text: "तपाईंको व्याख्या गर्ने शैली एकदम सरल र स्पष्ट छ", Label: "Safe"},
+	{Text: "सिक्न चाहनेहरूका लागि निकै प्रेरणादायी भिडियो", Label: "Safe"},
+	{Text: "नयाँ सोच र नयाँ ऊर्जा दिने भिडियो", Label: "Safe"},
+	{Text: "सम्पूर्ण टिमलाई हार्दिक बधाई तथा शुभकामना", Label: "Safe"},
+
+	// Mixed English + Nepali Safe
+	{Text: "great video dai, timro editing level ekdam high cha", Label: "Safe"},
+	{Text: "loved the concept bro, sadhai yestai content lyaunu", Label: "Safe"},
+	{Text: "full support from Pokhara brother, great work", Label: "Safe"},
+	{Text: "very informative video, dherai doubt clear bhayo aaja", Label: "Safe"},
+	{Text: "superb vlog bro, nature ko scenery dherai ramro lagyo", Label: "Safe"},
+	{Text: "quality over quantity, timro content ekdam unique cha", Label: "Safe"},
+	{Text: "nice explanation brother, concept ramrari bujhe", Label: "Safe"},
+	{Text: "congratulations for 50k subscribers, deserving creator", Label: "Safe"},
+	{Text: "clean humor, no cringe, just pure entertainment", Label: "Safe"},
+	{Text: "production quality international standard ko lagyo", Label: "Safe"},
+	{Text: "nice presentation bro धेरै राम्रो लाग्यो", Label: "Safe"},
+	{Text: "best video on this topic, साथीहरूलाई पनि सेयर गरेँ", Label: "Safe"},
+	{Text: "keep growing brother, नेपालमा यस्तो कन्टेन्ट विरलै पाइन्छ", Label: "Safe"},
+	{Text: "awesome work bro, heartily appreciate your effort", Label: "Safe"},
+	{Text: "soundtrack choices are brilliant, pura cinematic feel aayo", Label: "Safe"},
+
+	// Long Form Descriptions & Mixed Constructive (Safe)
+	{Text: "in this video we talk about history, problems and solutions in Nepal", Label: "Safe"},
+	{Text: "welcome back to my channel today we explore kathmandu street food and review local places", Label: "Safe"},
+	{Text: "a complete beginner guide to programming in golang with practical projects and code examples", Label: "Safe"},
+	{Text: "travel vlog exploring Mustang Nepal covering travel budget hotel details and itinerary", Label: "Safe"},
+	{Text: "full documentary on wildlife conservation in Chitwan National Park including interviews", Label: "Safe"},
+	{Text: "sound ali sano thiyo tara video overall ekdam ramro lagyo, good job", Label: "Safe"},
+	{Text: "great effort bro, audio could be slightly improved next time but loved the video", Label: "Safe"},
+	{Text: "video ramro cha tara ali sound low thiyo, overall enjoyed watching it", Label: "Safe"},
+	{Text: "bistarai bolnu bhayeko bhaye jhan ramro hunthyo tara content ekdam dami cha", Label: "Safe"},
+	{Text: "editing ali fast thiyo tara explanation dherai useful lagyo, thank you", Label: "Safe"},
+	{Text: "धेरै राम्रो भिडियो बनाएछौ, अलि छोटो भएको भए झन् राम्रो हुन्थ्यो तर मन पर्यो", Label: "Safe"},
+	{Text: "आवाज अलि सानो सुनियो तर समग्रमा भिडियो निकै राम्रो छ", Label: "Safe"},
+	{Text: "minor mic issue at the beginning but the rest of the presentation is brilliant", Label: "Safe"},
+	{Text: "pacing was a bit fast in the middle section however the conclusion made total sense", Label: "Safe"},
+	{Text: "lighting was slightly dark in one scene but content quality is 10/10", Label: "Safe"},
+
+	// ==========================================
+	// POTENTIALLY PROBLEMATIC (Constructive Criticism, Boring, Annoying, Disagreement)
+	// ==========================================
+	// English Potentially Problematic
+	{Text: "video unnecessarily long lagyo", Label: "PotentiallyProblematic"},
+	{Text: "same kura dherai repeat bhayo", Label: "PotentiallyProblematic"},
+	{Text: "camera focus issue thiyo ki", Label: "PotentiallyProblematic"},
+	{Text: "could have been much shorter", Label: "PotentiallyProblematic"},
+	{Text: "i disagree with some points mentioned here", Label: "PotentiallyProblematic"},
+	{Text: "the audio is out of sync at multiple places", Label: "PotentiallyProblematic"},
+	{Text: "title and thumbnail felt like clickbait honestly", Label: "PotentiallyProblematic"},
+	{Text: "too much filler and unnecessary talking in the beginning", Label: "PotentiallyProblematic"},
+	{Text: "background music was too loud could barely hear your voice", Label: "PotentiallyProblematic"},
+	{Text: "your previous video was way better than this one", Label: "PotentiallyProblematic"},
+	{Text: "the pacing was extremely slow and boring", Label: "PotentiallyProblematic"},
+	{Text: "felt quite biased towards one specific brand", Label: "PotentiallyProblematic"},
+	{Text: "you skipped the most important part of the tutorial", Label: "PotentiallyProblematic"},
+	{Text: "information provided here seems outdated and inaccurate", Label: "PotentiallyProblematic"},
+	{Text: "lighting was very harsh and distracting throughout", Label: "PotentiallyProblematic"},
+	{Text: "not your best work, expected more depth from you", Label: "PotentiallyProblematic"},
+	{Text: "very repetitive content nothing fresh or original", Label: "PotentiallyProblematic"},
+	{Text: "too many sponsorships and ad interruptions ruined the flow", Label: "PotentiallyProblematic"},
+	{Text: "felt rushed and poorly researched to be honest", Label: "PotentiallyProblematic"},
+	{Text: "you did not answer the main question from the title", Label: "PotentiallyProblematic"},
+	{Text: "a bit confusing explanation got lost midway", Label: "PotentiallyProblematic"},
+	{Text: "sound quality is muffled please use a better microphone", Label: "PotentiallyProblematic"},
+	{Text: "disappointed by how basic this overview was", Label: "PotentiallyProblematic"},
+	{Text: "the camera was shaking way too much gave me a headache", Label: "PotentiallyProblematic"},
+	{Text: "felt like a waste of time could have been summarized in 2 minutes", Label: "PotentiallyProblematic"},
+	{Text: "i think you made a factual mistake around the 5 minute mark", Label: "PotentiallyProblematic"},
+	{Text: "very repetitive presentation style getting monotonic", Label: "PotentiallyProblematic"},
+	{Text: "not convinced by your arguments need more evidence", Label: "PotentiallyProblematic"},
+	{Text: "visuals were blurry make sure to render in 1080p minimum", Label: "PotentiallyProblematic"},
+	{Text: "the script felt unorganized and jumped between topics", Label: "PotentiallyProblematic"},
+
+	// Romanized Nepali Potentially Problematic
+	{Text: "video dherai lamo bhayo ali boring lagyo", Label: "PotentiallyProblematic"},
+	{Text: "bina kaam ko guff dherai bhayo video ma", Label: "PotentiallyProblematic"},
+	{Text: "suru ma dherai time waste gareu main topic ma auna", Label: "PotentiallyProblematic"},
+	{Text: "mic ko sound ali kasto kasto suniyo irritating thiyo", Label: "PotentiallyProblematic"},
+	{Text: "clickbait thiyo thumbnail ma bhako kura video ma xaina", Label: "PotentiallyProblematic"},
+	{Text: "yo kura chai timro galat bolyou bro recheck gara", Label: "PotentiallyProblematic"},
+	{Text: "paila ko video jasto dami xaina aaja ko chai", Label: "PotentiallyProblematic"},
+	{Text: "timro bolne tone ali rude lagyo aaja", Label: "PotentiallyProblematic"},
+	{Text: "same kura 10 choti dohorayera lamo banayo", Label: "PotentiallyProblematic"},
+	{Text: "yo video herera time waste matra bhayo", Label: "PotentiallyProblematic"},
+	{Text: "background music le garda aawaj nai bujhiena", Label: "PotentiallyProblematic"},
+	{Text: "information haru dherai misleading cha research garera bolnu", Label: "PotentiallyProblematic"},
+	{Text: "kasto hawa acting gareko cringe lagyo", Label: "PotentiallyProblematic"},
+	{Text: "ali mehenat garna parne thiyo content superficial cha", Label: "PotentiallyProblematic"},
+	{Text: "camera ali dherai hallyo herna garho bhayo", Label: "PotentiallyProblematic"},
+	{Text: "sponsor ko prachar matra gareko jasto lagyo", Label: "PotentiallyProblematic"},
+	{Text: "timro kura ma ma sahmat huna sakina", Label: "PotentiallyProblematic"},
+	{Text: "video ma kehi naya content thiyena pura purano kura", Label: "PotentiallyProblematic"},
+	{Text: "title ma euta kura bhaneko cha bhitra arkai cha", Label: "PotentiallyProblematic"},
+	{Text: "editing dherai messy lagyo transition haru awkward chan", Label: "PotentiallyProblematic"},
+	{Text: "ali dherai lamo khelyo choto banaye hunthyo", Label: "PotentiallyProblematic"},
+	{Text: "script ma focus chaina k bolna khojeko k bolyo", Label: "PotentiallyProblematic"},
+	{Text: "timro logic milena bro thamel ko guff jasto lagyo", Label: "PotentiallyProblematic"},
+	{Text: "bina research ko video banayera viewer lai ullu banayau", Label: "PotentiallyProblematic"},
+	{Text: "quality din pratidin ghatdai gairacha bro", Label: "PotentiallyProblematic"},
+	{Text: "fataha kura dherai bhayo factual proof dekhaunu paryo", Label: "PotentiallyProblematic"},
+	{Text: "ekdam monotonic voice lagyo nindra lagyo herda", Label: "PotentiallyProblematic"},
+	{Text: "ali ramrari plan garera shoot garnu parne thiyo", Label: "PotentiallyProblematic"},
+	{Text: "kasto irritating background noise aairacha fan ko", Label: "PotentiallyProblematic"},
+	{Text: "timro yo video chai malai khasai mann parena", Label: "PotentiallyProblematic"},
+
+	// Devanagari Nepali Potentially Problematic
+	{Text: "कस्तो बोरिङ भिडियो बनाएको, समय मात्र खेर गयो", Label: "PotentiallyProblematic"},
+	{Text: "सुरुमा धेरै गफ मात्र भयो, मुख्य विषयमा छिटो आउनु पर्थ्यो", Label: "PotentiallyProblematic"},
+	{Text: "तपाईंले दिनुभएको जानकारी भ्रामक र गलत छ", Label: "PotentiallyProblematic"},
+	{Text: "थम्बनेल हेरेर क्लिक गरेको, भिडियोमा केही पनि रहेनछ", Label: "PotentiallyProblematic"},
+	{Text: "आवाज स्पष्ट छैन, पछाडिको संगीतले गर्दा कान दुख्यो", Label: "PotentiallyProblematic"},
+	{Text: "एउटै कुरा बारम्बार दोहोर्याएर भिडियो अनावश्यक लामो बनाइयो", Label: "PotentiallyProblematic"},
+	{Text: "पहिलेको भन्दा भिडियोको स्तर निकै खस्किएको छ", Label: "PotentiallyProblematic"},
+	{Text: "तथ्यहरू राम्ररी अनुसन्धान नगरी बोल्नुभएछ", Label: "PotentiallyProblematic"},
+	{Text: "भिडियो निकै अल्छी लाग्दो र झर्को लाग्दो छ", Label: "PotentiallyProblematic"},
+	{Text: "विज्ञापन मात्र धेरै भयो, सामग्री केही छैन", Label: "PotentiallyProblematic"},
+	{Text: "क्यामेरा धेरै हल्लिएर हेर्न गाह्रो भयो", Label: "PotentiallyProblematic"},
+	{Text: "तपाईंको विचारसँग म सहमत हुन सकिनँ", Label: "PotentiallyProblematic"},
+	{Text: "सस्तो प्रचारको लागि यस्तो भिडियो नबनाउनु होला", Label: "PotentiallyProblematic"},
+	{Text: "प्रस्तुति शैली निकै रुखो र दिक्क लाग्दो लाग्यो", Label: "PotentiallyProblematic"},
+	{Text: "शीर्षक एउटा छ, भित्रको कुरा अर्कै छ, शुद्ध क्लिकबेट", Label: "PotentiallyProblematic"},
+	{Text: "भिडियो निकै लामो भयो, ५ मिनेटमै सकाउन सकिन्थ्यो", Label: "PotentiallyProblematic"},
+	{Text: "दर्शकलाई झुक्याउने काम नगर्नुस्", Label: "PotentiallyProblematic"},
+	{Text: "सम्पादन निकै कमजोर र अधुरो देखिन्छ", Label: "PotentiallyProblematic"},
+	{Text: "चित्तबुझ्दो व्याख्या भएन, अधुरो लाग्यो", Label: "PotentiallyProblematic"},
+	{Text: "आगामी भिडियोमा अलि मेहनत गर्न सुझाव दिन्छु", Label: "PotentiallyProblematic"},
+
+	// Mixed English + Nepali Potentially Problematic
+	{Text: "bro pacing is so slow, nepali audience lai boring lagcha", Label: "PotentiallyProblematic"},
+	{Text: "sound quality ekdam low thiyo couldn't understand half of it", Label: "PotentiallyProblematic"},
+	{Text: "totally clickbait video, thumbnail ma bhako kura content ma chaina", Label: "PotentiallyProblematic"},
+	{Text: "expected more technical details, ali basic overview matra bhayo", Label: "PotentiallyProblematic"},
+	{Text: "bgm volume was way too high, voice clear suniyena", Label: "PotentiallyProblematic"},
+	{Text: "boring explanation, kura repeat matra bhayo aaja", Label: "PotentiallyProblematic"},
+	{Text: "disagree with your conclusion, facts haru double check gara bro", Label: "PotentiallyProblematic"},
+	{Text: "too much sponsor talk, viewer ko time waste nagara na", Label: "PotentiallyProblematic"},
+	{Text: "editing was super messy, visual transitions milena", Label: "PotentiallyProblematic"},
+	{Text: "presentation ramro thiyena, looked very unprepared", Label: "PotentiallyProblematic"},
+
+	// ==========================================
+	// PROBLEMATIC (Vulgar words, Slurs, Scams, Harassment, Hate Speech)
+	// ==========================================
+	// Nepali Slurs & Vulgar Words (Romanized)
+	{Text: "kera jasto video thait ahahhah jatho", Label: "Problematic"},
+	{Text: "kasto muji video banako hawa", Label: "Problematic"},
+	{Text: "radi ko ban kasto content ho yo", Label: "Problematic"},
+	{Text: "jatha haru sab chor hun", Label: "Problematic"},
+	{Text: "tero baje ko kando machikne", Label: "Problematic"},
+	{Text: "muji creator tero dimag chaina", Label: "Problematic"},
+	{Text: "radi ko choro hawa guff hanne", Label: "Problematic"},
+	{Text: "jatho machikne chup lag", Label: "Problematic"},
+	{Text: "kera kha tero video kasaile herdaina", Label: "Problematic"},
+	{Text: "lado jasto acting garecha kando", Label: "Problematic"},
+	{Text: "randi ko choro chup lagera bas", Label: "Problematic"},
+	{Text: "machikney video delete gar natra pitai khalas", Label: "Problematic"},
+	{Text: "kasto bhalu jasto prastuti gareko", Label: "Problematic"},
+	{Text: "chutiya creator sab bhanda ghatiya", Label: "Problematic"},
+	{Text: "tero aama lai sodh machikne", Label: "Problematic"},
+	{Text: "beshya ko aula jasto content", Label: "Problematic"},
+	{Text: "jatha lado chus mero", Label: "Problematic"},
+	{Text: "muji tero aukat chaina video banaune", Label: "Problematic"},
+	{Text: "chikne tero bau ko channel ho yo", Label: "Problematic"},
+	{Text: "madarchod kasto guff pelira cha", Label: "Problematic"},
+	{Text: "bhenchod tero mukh thun", Label: "Problematic"},
+	{Text: "randi bhalu sabai kura fake ho", Label: "Problematic"},
+	{Text: "kasto kando chireko manche", Label: "Problematic"},
+	{Text: "jatho machikne talai vetey bhane thaha pauchas", Label: "Problematic"},
+	{Text: "lado ko video banayera hero nabana", Label: "Problematic"},
+	{Text: "muji haru sabai lai report hanum", Label: "Problematic"},
+	{Text: "radi ko ban tero dimag ma gobar cha", Label: "Problematic"},
+	{Text: "kera jasto mukh bhako jatho", Label: "Problematic"},
+	{Text: "machikne chor fataha", Label: "Problematic"},
+	{Text: "tero gu khane muji", Label: "Problematic"},
+
+	// Devanagari Nepali Slurs & Toxic Content
+	{Text: "कस्तो मुजी भिडियो बनाएको जाठो", Label: "Problematic"},
+	{Text: "राँडीको बान तेरो दिमाग छैन", Label: "Problematic"},
+	{Text: "माचिक्ने भिडियो तुरुन्त डिलिट गर्", Label: "Problematic"},
+	{Text: "तेरो बाउको लाडो खा जाठो", Label: "Problematic"},
+	{Text: "मुजी फटाहा ठग कुकुर", Label: "Problematic"},
+	{Text: "केरा जस्तो भिडियो बनाएर हिरो बन्छस्", Label: "Problematic"},
+	{Text: "राँडीको छोरो तेरो मुख थुन", Label: "Problematic"},
+	{Text: "काँडो मर्कने गरी कुटाइ खान्छस्", Label: "Problematic"},
+	{Text: "चुतिया मान्छे तेरो कुनै औकात छैन", Label: "Problematic"},
+	{Text: "मादरचोद फटाहा कुरा नगर", Label: "Problematic"},
+	{Text: "भालु जस्तो हर्कत देखाउन बन्द गर्", Label: "Problematic"},
+	{Text: "जाठा तेरो घमण्ड तोडिदिन्छु", Label: "Problematic"},
+	{Text: "तेरी आमाको चिक्ने कुकुर", Label: "Problematic"},
+	{Text: "सबैभन्दा घटिया र फोहोरी मुजी क्रिएटर", Label: "Problematic"},
+	{Text: "राँडीको जात तँलाई जुत्ताको माला लगाउनु पर्छ", Label: "Problematic"},
+	{Text: "माचिक्ने युट्युब छोडेर भाग्", Label: "Problematic"},
+	{Text: "लाडो चुस मेरो फटाहा जाठो", Label: "Problematic"},
+	{Text: "तेरो मुखमा मेरो मुत", Label: "Problematic"},
+	{Text: "बेश्याको सन्तान हावा बक्छस्", Label: "Problematic"},
+	{Text: "कुकुर मुजी तँलाई भेट्यो भने मार्छु", Label: "Problematic"},
+
+	// English Profanity & Abusive Language
+	{Text: "shut the fuck up you piece of shit", Label: "Problematic"},
+	{Text: "what the fuck is this garbage", Label: "Problematic"},
+	{Text: "you are a complete asshole and a bastard", Label: "Problematic"},
+	{Text: "delete your channel you fucking idiot", Label: "Problematic"},
+	{Text: "go kill yourself nobody wants to watch your crap", Label: "Problematic"},
+	{Text: "bitch ass creator producing absolute dogshit", Label: "Problematic"},
+	{Text: "fucking dumbass stop talking out of your ass", Label: "Problematic"},
+	{Text: "piece of shit scammer go die in a ditch", Label: "Problematic"},
+	{Text: "get the fuck out of youtube you moron", Label: "Problematic"},
+	{Text: "ugly motherfucker stop making videos", Label: "Problematic"},
+	{Text: "your content is cancer and you are a dipshit", Label: "Problematic"},
+	{Text: "shut your ugly ass mouth you pathetic loser", Label: "Problematic"},
+	{Text: "fucking scumbag stealing everyone's content", Label: "Problematic"},
+	{Text: "what a certified retard learn to speak properly", Label: "Problematic"},
+	{Text: "stupid bitch go learn some manners", Label: "Problematic"},
+	{Text: "i hope you get punched in the face you prick", Label: "Problematic"},
+	{Text: "fuck you and fuck your sponsor", Label: "Problematic"},
+	{Text: "absolute cunt stop polluting the internet", Label: "Problematic"},
+	{Text: "dumb bitch wasting everyone's time", Label: "Problematic"},
+	{Text: "worthless piece of garbage drop dead", Label: "Problematic"},
+
+	// Scams, Phishing, Spam & Harassment (English + Nepali)
+	{Text: "loan chahiyo bina document contact me", Label: "Problematic"},
+	{Text: "i made $1000 in one day ask me how", Label: "Problematic"},
+	{Text: "100% profit guaranteed no risk invest now", Label: "Problematic"},
+	{Text: "free crypto giveaway click my profile link", Label: "Problematic"},
+	{Text: "hot girls waiting click here to chat live", Label: "Problematic"},
+	{Text: "work from home and earn lakhs without investment", Label: "Problematic"},
+	{Text: "join my whatsapp group for 100% winning betting signals", Label: "Problematic"},
+	{Text: "telegram group join gara leaked mms pauna ko lagi", Label: "Problematic"},
+	{Text: "free iphone 15 giveaway claim yours immediately at link", Label: "Problematic"},
+	{Text: "earn 5000 rs daily by liking videos message me in inbox", Label: "Problematic"},
+	{Text: "ghar basi basi lakhau kamaunu hos yo link click garnu", Label: "Problematic"},
+	{Text: "hack instagram accounts in 2 minutes message this number", Label: "Problematic"},
+	{Text: "bina collateral 5 lakh loan turuntai paunu hos", Label: "Problematic"},
+	{Text: "online casino hack guaranteed money withdrawal dm now", Label: "Problematic"},
+	{Text: "call girls contact number available in kathmandu call now", Label: "Problematic"},
+	{Text: "hot sexy video watch full viral clip on telegram", Label: "Problematic"},
+	{Text: "earn passive income fast send me message on whatsapp", Label: "Problematic"},
+	{Text: "doubling your money in 24 hours guaranteed legitimate offer", Label: "Problematic"},
+	{Text: "exclusive leaked viral video click the bio link before deleted", Label: "Problematic"},
+	{Text: "free recharge and balance click here to register account", Label: "Problematic"},
+
+	// Threats & Physical Violence (Nepali & English)
+	{Text: "talai vetey bhane khukuri le handinchu", Label: "Problematic"},
+	{Text: "tero ghar ko address thaha cha aayera marxu", Label: "Problematic"},
+	{Text: "i will find you and track your family down", Label: "Problematic"},
+	{Text: "tero khutta bhachera hospital puryauxu jatha", Label: "Problematic"},
+	{Text: "i will kill you in real life you dead man", Label: "Problematic"},
+	{Text: "police ma report hanchu talai jail halxu machikne", Label: "Problematic"},
+	{Text: "tero aakha futaldinchu badhi nabol", Label: "Problematic"},
+	{Text: "goli thoki dinchu tero mathi", Label: "Problematic"},
+	{Text: "threaten me again and see what happens to your family", Label: "Problematic"},
+	{Text: "tero jindigi barbad banai dinchu jatha", Label: "Problematic"},
 }

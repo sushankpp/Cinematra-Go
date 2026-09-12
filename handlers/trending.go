@@ -19,7 +19,7 @@ func fetchVideosByIDs(supabaseURL, serviceKey string, ids []string) ([]map[strin
 	url := supabaseURL + "/rest/v1/videos" +
 		"?id=in.(" + strings.Join(ids, ",") + ")" +
 		"&status=eq.ready" +
-		"&select=id,title,description,thumbnail_url,user_id,release_year,language,content_rating,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+		"&select=id,title,description,thumbnail_url,user_id,release_year,language,content_rating,moderation_label,moderation_confidence,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

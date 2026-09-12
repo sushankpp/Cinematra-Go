@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
@@ -28,26 +29,36 @@ func Register(c fiber.Ctx) error {
 	}
 
 	if err := c.Bind().JSON(&body); err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	email := strings.TrimSpace(body.Email)
+	password := strings.TrimSpace(body.Password)
+	if email == "" || password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email and password are required"})
 	}
 
 	var existingUser models.User
-	err := config.DB.QueryRow(context.Background(), "Select id from users where email = $1", body.Email).Scan(&existingUser.ID)
+	err := config.DB.QueryRow(context.Background(), "select id from users where lower(trim(email)) = lower(trim($1))", email).Scan(&existingUser.ID)
 	if err == nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "user with this email already exists"})
 	}
+	if !isNoRowsErr(err) {
+		fmt.Println("Register lookup error for email:", email, "err:", err)
+	}
 
-	hash, err := utils.HashPassword(body.Password)
+	hash, err := utils.HashPassword(password)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to hash password"})
 	}
 	var user models.User
 	err = config.DB.QueryRow(context.Background(),
 		"INSERT INTO users (first_name, last_name, email, phone, password, provider) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at",
-		body.FirstName, body.LastName, body.Email, body.Phone, hash, "email").
+		body.FirstName, body.LastName, email, body.Phone, hash, "email").
 		Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
+		fmt.Println("Register user insert failed for email:", email, "err:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create user"})
 	}
 
@@ -78,13 +89,24 @@ func Login(c fiber.Ctx) error {
 	}
 
 	if err := c.Bind().JSON(&body); err != nil {
-		return err
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
+	}
+
+	email := strings.TrimSpace(body.Email)
+	password := strings.TrimSpace(body.Password)
+	if email == "" || password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Email and password are required"})
 	}
 
 	var user models.User
-	err := config.DB.QueryRow(context.Background(), "select id, first_name, last_name, email, phone, password, picture,  provider, created_at, updated_at from users where email = $1", body.Email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
+	err := config.DB.QueryRow(context.Background(), "select id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at from users where lower(trim(email)) = lower(trim($1))", email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
+		if isNoRowsErr(err) {
+			fmt.Println("Login failed: no user found for email:", email)
+		} else {
+			fmt.Println("Login DB error for email:", email, "err:", err)
+		}
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid email or password"})
 	}
 
@@ -92,7 +114,8 @@ func Login(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "This account uses Google login"})
 	}
 
-	if !utils.CheckPassword(body.Password, *user.Password) {
+	if !utils.CheckPassword(password, *user.Password) {
+		fmt.Println("Login failed: password mismatch for email:", email)
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid email or password"})
 	}
 
@@ -196,11 +219,16 @@ func GoogleCallback(c fiber.Ctx) error {
 		})
 	}
 	var user models.User
-	err = config.DB.QueryRow(context.Background(), "select id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at from users where email = $1", googleUser.Email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
+	googleEmail := strings.TrimSpace(googleUser.Email)
+	err = config.DB.QueryRow(context.Background(), "select id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at from users where lower(trim(email)) = lower(trim($1))", googleEmail).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
 
 	if err != nil {
-		err = config.DB.QueryRow(context.Background(), "Insert into users (first_name, last_name, email, phone, password, picture, provider) values ( $1, $2, $3, $4, $5, $6, $7) returning id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at", googleUser.FirstName, googleUser.LastName, googleUser.Email, nil, nil, googleUser.Picture, "google").Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
+		if !isNoRowsErr(err) {
+			fmt.Println("Google lookup DB error for email:", googleEmail, "err:", err)
+		}
+		err = config.DB.QueryRow(context.Background(), "Insert into users (first_name, last_name, email, phone, password, picture, provider) values ( $1, $2, $3, $4, $5, $6, $7) returning id, first_name, last_name, email, phone, password, picture, provider, created_at, updated_at", googleUser.FirstName, googleUser.LastName, googleEmail, nil, nil, googleUser.Picture, "google").Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Phone, &user.Password, &user.Picture, &user.Provider, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
+			fmt.Println("Google user insert failed for email:", googleEmail, "err:", err)
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"error": "Failed to create user",
 			})
@@ -221,6 +249,13 @@ func GoogleCallback(c fiber.Ctx) error {
 
 	return c.Redirect().To("http://localhost:3000/auth/callback")
 
+}
+
+func isNoRowsErr(err error) bool {
+	if err == nil {
+		return false
+	}
+	return strings.Contains(strings.ToLower(err.Error()), "no rows")
 }
 
 func Logout(c fiber.Ctx) error {

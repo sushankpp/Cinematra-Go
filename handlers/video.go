@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"cinematra-backend/utils/hls"
+	"cinematra-backend/utils/moderation"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -138,9 +139,16 @@ func UploadVideo(c fiber.Ctx) error {
 			}
 		}
 	}
+	modLabel := "Safe"
+	modConfidence := 1.0
+	if description != "" {
+		modResult := moderation.Classify(moderation.GlobalModel, description)
+		modLabel = modResult.Label
+		modConfidence = modResult.Confidence
+	}
 
 	// ── Save metadata to Supabase DB ───────────────────────────
-	videoID, err := saveVideoMetadata(userID, title, description, masterURL, thumbnailURL, language, contentRating, releaseYear)
+	videoID, err := saveVideoMetadata(userID, title, description, masterURL, thumbnailURL, language, contentRating, releaseYear, modLabel, modConfidence)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to save video metadata: " + err.Error()})
 	}
@@ -162,13 +170,15 @@ func UploadVideo(c fiber.Ctx) error {
 	fmt.Println(">>> video uploaded successfully with ID:", videoID)
 
 	return c.Status(201).JSON(fiber.Map{
-		"video_id":      videoID,
-		"title":         title,
-		"description":   description,
-		"master_url":    masterURL,
-		"thumbnail_url": thumbnailURL,
-		"qualities":     []string{"1080p", "720p", "480p", "360p"},
-		"status":        "ready",
+		"video_id":              videoID,
+		"title":                 title,
+		"description":           description,
+		"master_url":            masterURL,
+		"thumbnail_url":         thumbnailURL,
+		"moderation_label":      modLabel,
+		"moderation_confidence": modConfidence,
+		"qualities":             []string{"1080p", "720p", "480p", "360p"},
+		"status":                "ready",
 	})
 }
 
@@ -214,6 +224,13 @@ func UpdateVideo(c fiber.Ctx) error {
 		updates["thumbnail_url"] = thumbnailURL
 	}
 
+	if newDesc := c.FormValue("description"); newDesc != "" {
+		updates["description"] = newDesc
+		result := moderation.Classify(moderation.GlobalModel, newDesc)
+		updates["moderation_label"] = result.Label
+		updates["moderation_confidence"] = result.Confidence
+	}
+
 	genreIDs := c.FormValue("genre_ids")
 	if genreIDs != "" {
 		if err := replaceVideoGenres(videoID, genreIDs); err != nil {
@@ -236,7 +253,12 @@ func UpdateVideo(c fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "nothing to update"})
 	}
 
-	return c.JSON(fiber.Map{"message": "video updated successfully"})
+	respMap := fiber.Map{"message": "video updated successfully"}
+	if lbl, ok := updates["moderation_label"]; ok {
+		respMap["moderation_label"] = lbl
+		respMap["moderation_confidence"] = updates["moderation_confidence"]
+	}
+	return c.JSON(respMap)
 }
 
 func DeleteVideo(c fiber.Ctx) error {
@@ -272,19 +294,13 @@ func patchVideoRow(videoID, userID string, updates map[string]interface{}) error
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	parts := []string{}
-	for k, v := range updates {
-		switch val := v.(type) {
-		case string:
-			parts = append(parts, fmt.Sprintf(`"%s":%q`, k, val))
-		case int:
-			parts = append(parts, fmt.Sprintf(`"%s":%d`, k, val))
-		}
+	payloadBytes, err := json.Marshal(updates)
+	if err != nil {
+		return fmt.Errorf("failed to serialize updates: %w", err)
 	}
-	payload := "{" + joinStrings(parts, ",") + "}"
 
 	url := fmt.Sprintf("%s/rest/v1/videos?id=eq.%s&user_id=eq.%s", supabaseURL, videoID, userID)
-	req, err := http.NewRequest("PATCH", url, bytes.NewBufferString(payload))
+	req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(payloadBytes))
 	if err != nil {
 		return err
 	}
@@ -395,22 +411,31 @@ func generateThumbnail(videoPath, outDir string) (string, error) {
 	return thumbPath, nil
 }
 
-func saveVideoMetadata(userID, title, description, masterURL, thumbnailURL, language, contentRating string, releaseYear *int) (string, error) {
+func saveVideoMetadata(userID, title, description, masterURL, thumbnailURL, language, contentRating string, releaseYear *int, moderationLabel string, moderationConfidence float64) (string, error) {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	releaseYearVal := "null"
-	if releaseYear != nil {
-		releaseYearVal = strconv.Itoa(*releaseYear)
+	data := map[string]interface{}{
+		"user_id":               userID,
+		"title":                 title,
+		"description":           description,
+		"storage_url":           masterURL,
+		"thumbnail_url":         thumbnailURL,
+		"status":                "ready",
+		"language":              language,
+		"content_rating":        contentRating,
+		"release_year":          releaseYear,
+		"moderation_label":      moderationLabel,
+		"moderation_confidence": moderationConfidence,
 	}
 
-	payload := fmt.Sprintf(
-		`{"user_id":%q,"title":%q,"description":%q,"storage_url":%q,"thumbnail_url":%q,"status":"ready","language":%q,"content_rating":%q,"release_year":%s}`,
-		userID, title, description, masterURL, thumbnailURL, language, contentRating, releaseYearVal,
-	)
+	payload, err := json.Marshal(data)
+	if err != nil {
+		return "", fmt.Errorf("failed to serialize video metadata: %w", err)
+	}
 
 	url := supabaseURL + "/rest/v1/videos"
-	req, err := http.NewRequest("POST", url, bytes.NewBufferString(payload))
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(payload))
 	if err != nil {
 		return "", err
 	}
@@ -440,7 +465,7 @@ func GetVideos(c fiber.Ctx) error {
 
 	url := supabaseURL + "/rest/v1/videos" +
 		"?status=eq.ready" +
-		"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))" +
+		"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,moderation_label,moderation_confidence,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))" +
 		"&order=created_at.desc" +
 		"&limit=20"
 
@@ -518,7 +543,7 @@ func GetVideo(c fiber.Ctx) error {
 
 	url := supabaseURL + "/rest/v1/videos" +
 		"?id=eq." + id +
-		"&select=id,title,description,storage_url,thumbnail_url,user_id,release_year,created_at,views,likes_count,dislikes_count,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+		"&select=id,title,description,storage_url,thumbnail_url,user_id,release_year,created_at,views,likes_count,dislikes_count,moderation_label,moderation_confidence,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
 
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("apikey", serviceKey)
@@ -552,7 +577,7 @@ func GetVideo(c fiber.Ctx) error {
 			"&user_id=eq." + userID +
 			"&select=reaction_type"
 
-		fmt.Println("GetVideo reaction check URL:", reactURL)
+		// fmt.Println("GetVideo reaction check URL:", reactURL)
 
 		rReq, _ := http.NewRequest("GET", reactURL, nil)
 		rReq.Header.Set("apikey", serviceKey)
@@ -583,7 +608,7 @@ func GetUserVideo(c fiber.Ctx) error {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := supabaseURL + "/rest/v1/videos" + "?user_id=eq." + id + "&select=id,title,description,thumbnail_url,user_id,created_at,release_year,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+	url := supabaseURL + "/rest/v1/videos" + "?user_id=eq." + id + "&select=id,title,description,thumbnail_url,user_id,created_at,release_year,views,moderation_label,moderation_confidence,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("apikey", serviceKey)
 	req.Header.Set("Authorization", "Bearer "+serviceKey)

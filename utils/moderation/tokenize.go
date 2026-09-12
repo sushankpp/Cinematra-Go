@@ -1,6 +1,9 @@
 package moderation
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 func Tokenize(text string) []string {
 	text = strings.ToLower(text)
@@ -8,7 +11,7 @@ func Tokenize(text string) []string {
 	var current strings.Builder
 
 	for _, r := range text {
-		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
 			current.WriteRune(r)
 		} else {
 			if current.Len() > 0 {
