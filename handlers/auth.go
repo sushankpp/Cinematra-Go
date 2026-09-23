@@ -19,6 +19,21 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
+// resolveRole checks if the given email is in the SUPERADMIN_EMAILS env var.
+func resolveRole(email string) string {
+	admins := os.Getenv("SUPERADMIN_EMAILS")
+	if admins == "" {
+		return "user"
+	}
+	normEmail := strings.ToLower(strings.TrimSpace(email))
+	for _, a := range strings.Split(admins, ",") {
+		if strings.ToLower(strings.TrimSpace(a)) == normEmail {
+			return "superadmin"
+		}
+	}
+	return "user"
+}
+
 func Register(c fiber.Ctx) error {
 	var body struct {
 		FirstName string `json:"first_name"`
@@ -62,7 +77,8 @@ func Register(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to create user"})
 	}
 
-	token, err := utils.GenerateJWT(user.ID)
+	user.Role = resolveRole(user.Email)
+	token, err := utils.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
@@ -119,7 +135,8 @@ func Login(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid email or password"})
 	}
 
-	token, err := utils.GenerateJWT(user.ID)
+	user.Role = resolveRole(user.Email)
+	token, err := utils.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to generate token"})
 	}
@@ -235,7 +252,8 @@ func GoogleCallback(c fiber.Ctx) error {
 		}
 	}
 
-	jwtToken, err := utils.GenerateJWT(user.ID)
+	user.Role = resolveRole(user.Email)
+	jwtToken, err := utils.GenerateJWT(user.ID, user.Role)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": "Failed to generate token",
@@ -315,6 +333,7 @@ func Me(c fiber.Ctx) error {
 		MaxAge:   60 * 60 * 24 * 7,
 	})
 
+	user.Role = resolveRole(user.Email)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"user":                 user,
 		"onboarding_completed": onboardingCompleted,

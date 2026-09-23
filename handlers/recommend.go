@@ -75,55 +75,62 @@ func GetRecommendations(c fiber.Ctx) error {
 		return body, nil
 	}
 
-	// Cold start: User has no watch history — return latest videos with
-	// similarity_score: 0, but still attach trending_score / combined_score.
-	if len(watched) == 0 {
-		url := supabaseURL + "/rest/v1/videos" +
-			"?status=eq.ready" +
-			"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))" +
-			"&order=created_at.desc" +
-			"&limit=10"
-
-		body, err := fetchVideosFromURL(url)
-		if err != nil {
-			return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch default recommendations: " + err.Error()})
-		}
-
-		var coldStartVideos []map[string]interface{}
-		if err := json.Unmarshal(body, &coldStartVideos); err != nil {
-			return c.Status(200).Type("json").Send(body)
-		}
-		for i := range coldStartVideos {
-			ts := 0.0
-			if id, ok := coldStartVideos[i]["id"].(string); ok {
-				ts = normalizedTrend(id)
-			}
-			coldStartVideos[i]["similarity_score"] = 0.0
-			coldStartVideos[i]["trending_score"] = math.Round(ts*10000) / 10000
-			coldStartVideos[i]["combined_score"] = math.Round(0.3*ts*10000) / 10000
-		}
-		return c.Status(200).JSON(coldStartVideos)
-	}
-
 	// Create map of watched video IDs to exclude them from recommendation candidates
 	watchedIDs := make(map[string]bool)
 	for _, w := range watched {
 		watchedIDs[w.VideoId] = true
 	}
 
-	// Build user preference profile and generate recommended video IDs
-	userProfile := recommend.BuildUserProfile(watched, corpus)
-	scored := recommend.Recommend(userProfile, corpus, watchedIDs, 10)
+	// Build user preference profile (from watch history if available, or onboarding preferences)
+	var userProfile map[string]float64
+	if len(watched) > 0 {
+		userProfile = recommend.BuildUserProfile(watched, corpus)
+	} else {
+		// Cold start: Seed user profile from onboarding preferences
+		pref, _ := recommend.FetchUserPreferences(userID)
+		if pref != nil && (len(pref.PreferredGenres) > 0 || len(pref.PreferredTags) > 0) {
+			genreMap, _ := recommend.FetchGenreMap()
+			tagMap, _ := recommend.FetchTagMap()
 
-	// If no matching unwatched videos, fall back to latest videos but still compute scores
+			var genreNames []string
+			for _, gid := range pref.PreferredGenres {
+				if name, ok := genreMap[gid]; ok {
+					genreNames = append(genreNames, name)
+				}
+			}
+
+			var tagNames []string
+			for _, tid := range pref.PreferredTags {
+				if name, ok := tagMap[tid]; ok {
+					tagNames = append(tagNames, name)
+				}
+			}
+
+			userProfile = recommend.BuildSeedProfile(genreNames, tagNames, corpus.IDF)
+		}
+	}
+
+	// Score unwatched videos using 70% content similarity + 30% global trending
+	scored := recommend.RecommendHybrid(userProfile, corpus, trendingScores, maxTrending, watchedIDs, 0.7, 0.3, 10)
+
+	// If no scored candidates, fall back to global trending or latest videos
 	if len(scored) == 0 {
-		url := supabaseURL + "/rest/v1/videos" +
-			"?status=eq.ready" +
-			"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))" +
-			"&order=created_at.desc" +
-			"&limit=10"
+		trendingIDs := recommend.RankTrending(trendingScores, 10)
 
-		body, err := fetchVideosFromURL(url)
+		var fallbackURL string
+		if len(trendingIDs) > 0 {
+			fallbackURL = supabaseURL + "/rest/v1/videos" +
+				"?id=in.(" + strings.Join(trendingIDs, ",") + ")" +
+				"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))"
+		} else {
+			fallbackURL = supabaseURL + "/rest/v1/videos" +
+				"?status=eq.ready" +
+				"&select=id,title,thumbnail_url,user_id,release_year,created_at,views,users(first_name,last_name,picture),video_genres(genre_id,genres(id,name,slug)),video_tags(tag_id,tags(id,name,slug))" +
+				"&order=created_at.desc" +
+				"&limit=10"
+		}
+
+		body, err := fetchVideosFromURL(fallbackURL)
 		if err != nil {
 			return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch fallback recommendations: " + err.Error()})
 		}
@@ -133,12 +140,13 @@ func GetRecommendations(c fiber.Ctx) error {
 			return c.Status(200).Type("json").Send(body)
 		}
 
-		// Attach similarity, trending, and combined scores to fallback videos
 		for i, v := range fallbackVideos {
 			if id, ok := v["id"].(string); ok {
 				sim := 0.0
-				if vec, exists := corpus.VideoVectors[id]; exists {
-					sim = recommend.CosineSimilarity(userProfile, vec.Vector)
+				if len(userProfile) > 0 {
+					if vec, exists := corpus.VideoVectors[id]; exists {
+						sim = recommend.CosineSimilarity(userProfile, vec.Vector)
+					}
 				}
 				ts := normalizedTrend(id)
 				fallbackVideos[i]["similarity_score"] = math.Round(sim*10000) / 10000
@@ -152,10 +160,10 @@ func GetRecommendations(c fiber.Ctx) error {
 
 	// Build ID list and score lookup map
 	recommendedIDs := make([]string, 0, len(scored))
-	scoreMap := make(map[string]float64, len(scored))
+	scoreMap := make(map[string]recommend.HybridScoredVideo, len(scored))
 	for _, sv := range scored {
 		recommendedIDs = append(recommendedIDs, sv.VideoId)
-		scoreMap[sv.VideoId] = sv.Similarity
+		scoreMap[sv.VideoId] = sv
 	}
 
 	// Fetch full video details for recommended IDs
@@ -173,8 +181,7 @@ func GetRecommendations(c fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to parse recommended videos"})
 	}
 
-	// Reorder to match the recommendation similarity descending sort order
-	// and attach similarity_score / trending_score / combined_score to each video
+	// Reorder to match the combined score descending sort order
 	videoMap := make(map[string]map[string]interface{})
 	for _, v := range videos {
 		if id, ok := v["id"].(string); ok {
@@ -185,11 +192,10 @@ func GetRecommendations(c fiber.Ctx) error {
 	orderedVideos := make([]map[string]interface{}, 0, len(recommendedIDs))
 	for _, id := range recommendedIDs {
 		if v, exists := videoMap[id]; exists {
-			sim := scoreMap[id]
-			ts := normalizedTrend(id)
-			v["similarity_score"] = math.Round(sim*10000) / 10000
-			v["trending_score"] = math.Round(ts*10000) / 10000
-			v["combined_score"] = math.Round((0.7*sim+0.3*ts)*10000) / 10000
+			sv := scoreMap[id]
+			v["similarity_score"] = math.Round(sv.Similarity*10000) / 10000
+			v["trending_score"] = math.Round(sv.TrendingScore*10000) / 10000
+			v["combined_score"] = math.Round(sv.CombinedScore*10000) / 10000
 			orderedVideos = append(orderedVideos, v)
 		}
 	}

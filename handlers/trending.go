@@ -140,8 +140,42 @@ func GetPersonalizedTrending(c fiber.Ctx) error {
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to fetch watch history: " + err.Error()})
 	}
 
-	// Cold start — no watch history, fall back to global trending with scores
-	if len(watched) == 0 {
+	corpus, trendingScores, maxTrending := recommend.Cache.Snapshot()
+	if corpus == nil {
+		return c.Status(503).JSON(fiber.Map{"error": "recommendations warming up, try again shortly"})
+	}
+
+	// Build user content preference profile (from watch history if available, or onboarding preferences)
+	var userProfile map[string]float64
+	if len(watched) > 0 {
+		userProfile = recommend.BuildUserProfile(watched, corpus)
+	} else {
+		// Cold start: Check if user has onboarding preferences
+		pref, _ := recommend.FetchUserPreferences(userID)
+		if pref != nil && (len(pref.PreferredGenres) > 0 || len(pref.PreferredTags) > 0) {
+			genreMap, _ := recommend.FetchGenreMap()
+			tagMap, _ := recommend.FetchTagMap()
+
+			var genreNames []string
+			for _, gid := range pref.PreferredGenres {
+				if name, ok := genreMap[gid]; ok {
+					genreNames = append(genreNames, name)
+				}
+			}
+
+			var tagNames []string
+			for _, tid := range pref.PreferredTags {
+				if name, ok := tagMap[tid]; ok {
+					tagNames = append(tagNames, name)
+				}
+			}
+
+			userProfile = recommend.BuildSeedProfile(genreNames, tagNames, corpus.IDF)
+		}
+	}
+
+	// If user has neither watch history nor preferences, fall back to global trending
+	if len(userProfile) == 0 {
 		trendingScores, err := recommend.FetchTrendingScore()
 		if err != nil || len(trendingScores) == 0 {
 			return GetGlobalTrending(c)
@@ -175,14 +209,6 @@ func GetPersonalizedTrending(c fiber.Ctx) error {
 		return c.Status(200).JSON(videos)
 	}
 
-	corpus, trendingScores, maxTrending := recommend.Cache.Snapshot()
-	if corpus == nil {
-		return c.Status(503).JSON(fiber.Map{"error": "recommendations warming up, try again shortly"})
-	}
-
-	// Build user content preference profile
-	userProfile := recommend.BuildUserProfile(watched, corpus)
-
 	// Build set of already-watched IDs to exclude from results
 	watchedIDs := make(map[string]bool)
 	for _, w := range watched {
@@ -197,12 +223,9 @@ func GetPersonalizedTrending(c fiber.Ctx) error {
 		combinedScore float64
 	}
 
-	var candidates []hybridEntry
+	var unwatchedCandidates []hybridEntry
+	var watchedCandidates []hybridEntry
 	for videoId, videoVector := range corpus.VideoVectors {
-		if watchedIDs[videoId] {
-			continue
-		}
-
 		similarity := recommend.CosineSimilarity(userProfile, videoVector.Vector)
 
 		trendingScore := 0.0
@@ -214,19 +237,41 @@ func GetPersonalizedTrending(c fiber.Ctx) error {
 		combined := 0.7*similarity + 0.3*trendingScore
 
 		if combined > 0 {
-			candidates = append(candidates, hybridEntry{
+			entry := hybridEntry{
 				videoId:       videoId,
 				similarity:    similarity,
 				trendingScore: trendingScore,
 				combinedScore: combined,
-			})
+			}
+			if watchedIDs[videoId] {
+				watchedCandidates = append(watchedCandidates, entry)
+			} else {
+				unwatchedCandidates = append(unwatchedCandidates, entry)
+			}
 		}
 	}
 
-	// Sort by combined score descending
-	sort.Slice(candidates, func(i, j int) bool {
-		return candidates[i].combinedScore > candidates[j].combinedScore
+	// Sort unwatched by combined score descending
+	sort.Slice(unwatchedCandidates, func(i, j int) bool {
+		return unwatchedCandidates[i].combinedScore > unwatchedCandidates[j].combinedScore
 	})
+
+	candidates := unwatchedCandidates
+	if len(candidates) > 10 {
+		candidates = candidates[:10]
+	}
+
+	// Backfill with top-scoring watched videos if unwatched catalog is exhausted
+	if len(candidates) < 10 && len(watchedCandidates) > 0 {
+		sort.Slice(watchedCandidates, func(i, j int) bool {
+			return watchedCandidates[i].combinedScore > watchedCandidates[j].combinedScore
+		})
+		needed := 10 - len(candidates)
+		if needed > len(watchedCandidates) {
+			needed = len(watchedCandidates)
+		}
+		candidates = append(candidates, watchedCandidates[:needed]...)
+	}
 
 	// If no hybrid results, fall back to global trending but still compute scores
 	if len(candidates) == 0 {

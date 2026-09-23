@@ -61,4 +61,15 @@ func SetupRoutes(app *fiber.App) {
 
 	//dasboard analytics
 	app.Get("/dashboard/analytics", middleware.JWTProtected(), handlers.GetChannelAnalytics)
+
+	//notification routes - viewing notifications needs auth
+	app.Get("/notifications", middleware.JWTProtected(), handlers.GetNotifications)
+	app.Patch("/notifications/:id/read", middleware.JWTProtected(), handlers.MarkNotificationRead)
+
+	//admin routes - superadmin only
+	admin := app.Group("/admin", middleware.JWTProtected(), middleware.RequireSuperAdmin())
+	admin.Get("/users", handlers.AdminGetAllUsers)
+	admin.Delete("/users/:id", handlers.AdminDeleteUser)
+	admin.Get("/videos", handlers.AdminGetAllVideos)
+	admin.Get("/comments", handlers.AdminGetAllComments)
 }

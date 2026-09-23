@@ -264,11 +264,42 @@ func UpdateVideo(c fiber.Ctx) error {
 func DeleteVideo(c fiber.Ctx) error {
 	userID := c.Locals("userID").(string)
 	videoId := c.Params("id")
+	role, _ := c.Locals("userRole").(string)
 
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := supabaseURL + "/rest/v1/videos?id=eq." + videoId + "&user_id=eq." + userID
+	// If superadmin, find the video owner and title first for notification
+	var ownerID string
+	var videoTitle string
+	if role == "superadmin" {
+		ownerURL := supabaseURL + "/rest/v1/videos?id=eq." + videoId + "&select=user_id,title"
+		oReq, _ := http.NewRequest("GET", ownerURL, nil)
+		oReq.Header.Set("apikey", serviceKey)
+		oReq.Header.Set("Authorization", "Bearer "+serviceKey)
+		oReq.Header.Set("Accept", "application/vnd.pgrst.object+json")
+
+		var httpClient = &http.Client{Timeout: 10 * time.Second}
+		oResp, err := httpClient.Do(oReq)
+		if err == nil {
+			defer oResp.Body.Close()
+			oBody, _ := io.ReadAll(oResp.Body)
+			var videoRow struct {
+				UserID string `json:"user_id"`
+				Title  string `json:"title"`
+			}
+			json.Unmarshal(oBody, &videoRow)
+			ownerID = videoRow.UserID
+			videoTitle = videoRow.Title
+		}
+	}
+
+	// Build delete URL — superadmin skips user_id filter
+	url := supabaseURL + "/rest/v1/videos?id=eq." + videoId
+	if role != "superadmin" {
+		url += "&user_id=eq." + userID
+	}
+
 	req, err := http.NewRequest("DELETE", url, nil)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "failed to create delete request: " + err.Error()})
@@ -287,6 +318,27 @@ func DeleteVideo(c fiber.Ctx) error {
 		body, _ := io.ReadAll(resp.Body)
 		return c.Status(500).JSON(fiber.Map{"error": "delete failed: " + string(body)})
 	}
+
+	// If superadmin deleted someone else's video, create a notification
+	if role == "superadmin" && ownerID != "" && ownerID != userID {
+		reason := c.Query("reason")
+		var message string
+		if videoTitle != "" {
+			if reason != "" {
+				message = fmt.Sprintf("Your video \"%s\" was removed by an administrator. Reason: %s", videoTitle, reason)
+			} else {
+				message = fmt.Sprintf("Your video \"%s\" was removed by an administrator.", videoTitle)
+			}
+		} else {
+			if reason != "" {
+				message = fmt.Sprintf("Your video was removed by an administrator. Reason: %s", reason)
+			} else {
+				message = "Your video was removed by an administrator."
+			}
+		}
+		createNotification(ownerID, "video_deleted", message)
+	}
+
 	return c.Status(200).JSON(fiber.Map{"success": true, "message": "Video deleted successfully"})
 }
 

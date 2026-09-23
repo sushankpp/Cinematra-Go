@@ -12,6 +12,7 @@ type User struct {
 	Picture    *string   `json:"picture"`
 	Provider   string    `json:"provider"`
 	ProviderID *string   `json:"provider_id"`
+	Role       string    `json:"role"`
 	CreatedAt  time.Time `json:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at"`
 }

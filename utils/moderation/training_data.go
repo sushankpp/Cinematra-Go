@@ -129,6 +129,20 @@ var TrainingData = []LabeledComment{
 	{Text: "pacing was a bit fast in the middle section however the conclusion made total sense", Label: "Safe"},
 	{Text: "lighting was slightly dark in one scene but content quality is 10/10", Label: "Safe"},
 
+	// Cinema, Songs, Movie Descriptions & Credits (Safe)
+	{Text: "presenting official song from the film ramayana directed by nitesh tiwari in cinemas worldwide", Label: "Safe"},
+	{Text: "starring cast ranbir kapoor yash sai pallavi sunny deol music produced by tseries", Label: "Safe"},
+	{Text: "official teaser trailer of the upcoming blockbuster releasing in cinemas diwali our history our truth", Label: "Safe"},
+	{Text: "full video song lyrics composed by singer director producers movie releasing nationwide", Label: "Safe"},
+	{Text: "nepali movie official trailer releasing in theaters across nepal starring lead actors and actresses", Label: "Safe"},
+	{Text: "new song audio video release credits cast singer composer arranger music director", Label: "Safe"},
+	{Text: "behind the scenes making of the movie visual effects and stunts documentary", Label: "Safe"},
+	{Text: "press conference interview with director and actors discussing character roles and screenplay", Label: "Safe"},
+	{Text: "exclusive interview with the cast and crew sharing their experience on set", Label: "Safe"},
+	{Text: "special bonus episode featuring comedy skits guest appearances and music performances", Label: "Safe"},
+	{Text: "presenting the official music video with lyrics cast crew and full credits", Label: "Safe"},
+	{Text: "written and directed by starring actors in theaters worldwide this festive season", Label: "Safe"},
+
 	// ==========================================
 	// POTENTIALLY PROBLEMATIC (Constructive Criticism, Boring, Annoying, Disagreement)
 	// ==========================================

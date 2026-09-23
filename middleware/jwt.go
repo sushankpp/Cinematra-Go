@@ -34,6 +34,13 @@ func JWTProtected() fiber.Handler {
 		}
 		c.Locals("userID", userID)
 
+		// store role in context for admin checks
+		role, _ := claims["role"].(string)
+		if role == "" {
+			role = "user"
+		}
+		c.Locals("userRole", role)
+
 		return c.Next()
 	}
 }
