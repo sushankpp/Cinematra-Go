@@ -7,9 +7,9 @@ type LabeledComment struct {
 
 var TrainingData = []LabeledComment{
 	// ==========================================
-	// SAFE (English, Romanized Nepali, Devanagari, Mixed, Descriptions)
+	// SAFE (English, Romanized Nepali, Devanagari, Mixed, Music, Cinema, Queries)
 	// ==========================================
-	// English Safe
+	// English Safe - General Appreciation & Reviews
 	{Text: "finally someone explained it properly", Label: "Safe"},
 	{Text: "editing was clean and smooth", Label: "Safe"},
 	{Text: "haha that joke caught me off guard", Label: "Safe"},
@@ -41,7 +41,78 @@ var TrainingData = []LabeledComment{
 	{Text: "waiting eagerly for episode 2", Label: "Safe"},
 	{Text: "exceptional work by the whole production team", Label: "Safe"},
 
-	// Romanized Nepali Safe
+	// English Safe - Songs, Melodies, Music & Compliments (Resolves 'What a...', 'fabulous', 'melodious' bias)
+	{Text: "what a fabulous song, truly melodious", Label: "Safe"},
+	{Text: "what a fabulous song truly melodious and touching", Label: "Safe"},
+	{Text: "what a beautiful melody, touched my heart and soul", Label: "Safe"},
+	{Text: "what a melodious voice, absolutely heavenly singing", Label: "Safe"},
+	{Text: "what a masterpiece of a song, pure magic", Label: "Safe"},
+	{Text: "what a fabulous track, listening on repeat all day", Label: "Safe"},
+	{Text: "what a wonderful composition by the music director", Label: "Safe"},
+	{Text: "what an incredible vocal performance by the lead singer", Label: "Safe"},
+	{Text: "what a lovely and soothing melody", Label: "Safe"},
+	{Text: "what a great video and fabulous soundtrack", Label: "Safe"},
+	{Text: "what an extraordinary piece of music, goosebumps everywhere", Label: "Safe"},
+	{Text: "what a delightful song with such poetic and meaningful lyrics", Label: "Safe"},
+	{Text: "what a phenomenal performance by the entire orchestra", Label: "Safe"},
+	{Text: "what an amazing talent, exceptional vocal range and pitch control", Label: "Safe"},
+	{Text: "what a fabulous voice, truly soulful and mesmerizing", Label: "Safe"},
+	{Text: "what a breathtaking melody, instant classic", Label: "Safe"},
+	{Text: "what a brilliant musical piece, kudos to the composer", Label: "Safe"},
+	{Text: "what a fabulous concept and flawless execution", Label: "Safe"},
+	{Text: "what a heartwarming song, brings back beautiful memories", Label: "Safe"},
+	{Text: "what a gem of a video, pure artistic excellence", Label: "Safe"},
+	{Text: "truly melodious and serene, perfect music for relaxation", Label: "Safe"},
+	{Text: "fabulous music video with top tier cinematography", Label: "Safe"},
+	{Text: "truly a masterpiece, loved every single note of this song", Label: "Safe"},
+	{Text: "fabulous singing, such emotional depth and clarity", Label: "Safe"},
+	{Text: "such a melodious song, the flute and guitar accompaniment is divine", Label: "Safe"},
+	{Text: "truly inspiring work, keep making these melodic masterpieces", Label: "Safe"},
+	{Text: "fabulous melody with heart touching acoustic harmony", Label: "Safe"},
+	{Text: "truly gifted musician, this melody gave me chills", Label: "Safe"},
+	{Text: "fabulous lyrics and wonderful singing from start to finish", Label: "Safe"},
+	{Text: "melodious vibes, replaying this track non stop", Label: "Safe"},
+	{Text: "the melody is so soothing, pure bliss for the ears", Label: "Safe"},
+	{Text: "fabulous production quality and crystal clear audio mastering", Label: "Safe"},
+	{Text: "truly outstanding vocals, you deserve global recognition", Label: "Safe"},
+	{Text: "melodious composition with rich instrumental layers", Label: "Safe"},
+	{Text: "fabulous harmony between the singer and background chorus", Label: "Safe"},
+	{Text: "truly one of the most melodious songs released this year", Label: "Safe"},
+	{Text: "fabulous track, added straight to my favorite playlist", Label: "Safe"},
+	{Text: "pure melody, zero autotune, raw musical talent", Label: "Safe"},
+
+	// English Safe - Compliments Starting with "What a...", "What an...", "How..."
+	{Text: "what a stunning trailer, eagerly awaiting the theatrical release", Label: "Safe"},
+	{Text: "what a brilliant movie review, covered all nuances fairly", Label: "Safe"},
+	{Text: "what an exceptional performance by the lead actor and actress", Label: "Safe"},
+	{Text: "what a powerful and emotional scene, made me tear up", Label: "Safe"},
+	{Text: "what a fantastic breakdown of the cinematic universe", Label: "Safe"},
+	{Text: "what an inspiring documentary, salute to real heroes", Label: "Safe"},
+	{Text: "what a great explanation, everything is crystal clear now", Label: "Safe"},
+	{Text: "what a creative storyline, very unpredictable twist", Label: "Safe"},
+	{Text: "what an eye opening perspective, thank you for sharing", Label: "Safe"},
+	{Text: "what a pleasant surprise to see this collaboration", Label: "Safe"},
+	{Text: "what a masterpiece of modern nepali cinema", Label: "Safe"},
+	{Text: "what a great contribution to our film industry", Label: "Safe"},
+	{Text: "how beautiful is this shot, cinematic perfection", Label: "Safe"},
+	{Text: "how wonderfully this entire video was directed and edited", Label: "Safe"},
+	{Text: "how refreshing to watch authentic and original content", Label: "Safe"},
+	{Text: "what an awesome job done by the sound engineer", Label: "Safe"},
+	{Text: "what a clean and elegant presentation style", Label: "Safe"},
+
+	// English Safe - Informational & User Questions (Neutral/Safe with "What")
+	{Text: "what is the name of the background song playing in this video?", Label: "Safe"},
+	{Text: "what camera and lens did you use for shooting this scene?", Label: "Safe"},
+	{Text: "what is the title of the track at the beginning?", Label: "Safe"},
+	{Text: "what software do you use for color grading and video editing?", Label: "Safe"},
+	{Text: "what is the release date of this upcoming movie in theaters?", Label: "Safe"},
+	{Text: "what inspired you to choose this particular theme?", Label: "Safe"},
+	{Text: "what time will the full music video be uploaded?", Label: "Safe"},
+	{Text: "what a question, can you please do a detailed follow up on this?", Label: "Safe"},
+	{Text: "what microphone setup do you recommend for voice recordings?", Label: "Safe"},
+	{Text: "who composed this beautiful soundtrack, what an artist", Label: "Safe"},
+
+	// Romanized Nepali Safe - General & Music Appreciation
 	{Text: "ekdam ramro video bro keep it up", Label: "Safe"},
 	{Text: "dherai useful information thiyo thank you", Label: "Safe"},
 	{Text: "yo video herera dherai kura sikna paiyo", Label: "Safe"},
@@ -73,6 +144,33 @@ var TrainingData = []LabeledComment{
 	{Text: "visual ra background score ekdam match gareko cha", Label: "Safe"},
 	{Text: "proud of you bro nepali content lai agadi badhaudai chau", Label: "Safe"},
 
+	// Romanized Nepali Safe - Songs, Melodies, Films & Compliments
+	{Text: "kasto mitho geet, sunera man shanta huncha", Label: "Safe"},
+	{Text: "what a song dai, ekdam melodious lagyo", Label: "Safe"},
+	{Text: "yo geet repeat ma suneko sunai chu, dherai ramro", Label: "Safe"},
+	{Text: "swar ma kasto jaadu cha, fabulous performance dai", Label: "Safe"},
+	{Text: "kasto sundar gaayan ra rachana, dil chuhiyo", Label: "Safe"},
+	{Text: "nepali sangeet ko shaan ho yo geet", Label: "Safe"},
+	{Text: "aaha kasto pyaro gaana, man nai shanta bhayo", Label: "Safe"},
+	{Text: "dhun ekdamai melodious cha, sabai lai mann parcha", Label: "Safe"},
+	{Text: "cinema ko screenplay ra directing superb cha bro", Label: "Safe"},
+	{Text: "acting ekdam swabhavik lagyo sabai kalakar ko", Label: "Safe"},
+	{Text: "what a fabulous melody bro, lyrics le rulaidiyo", Label: "Safe"},
+	{Text: "geet ko har shabda le man choyeko cha", Label: "Safe"},
+	{Text: "surilo aawaj ra mitho sangeet, fabulous creation", Label: "Safe"},
+	{Text: "yo movie hall ma gayera herna parne raicha", Label: "Safe"},
+	{Text: "background score ra sound effects le goosebumps lyayo", Label: "Safe"},
+	{Text: "dami direction ra acting, full paisa wasool movie", Label: "Safe"},
+	{Text: "yo song kaile release huncha spotify ma kurirachu", Label: "Safe"},
+	{Text: "what a talent nepali youth ma yesto creative manchhe chan", Label: "Safe"},
+	{Text: "fabulous voice dai, yestai surila geet haru lyaudai garnu", Label: "Safe"},
+	{Text: "melodious song with touching visual storytelling", Label: "Safe"},
+	{Text: "kasto babbal acting gareko hero le, dami lageko", Label: "Safe"},
+	{Text: "sangeetkar lai dherai dherai dhanyabad yesto sangeet ko lagi", Label: "Safe"},
+	{Text: "what a masterpiece movie trailer, cinema hall pack huncha", Label: "Safe"},
+	{Text: "timro harmonium ra guitar bajai le man mohit banayo", Label: "Safe"},
+	{Text: "dil chuune aawaj cha bro, best wishes for your future", Label: "Safe"},
+
 	// Devanagari Nepali Safe
 	{Text: "धेरै राम्रो भिडियो ब्रो, किप इट अप", Label: "Safe"},
 	{Text: "एकदमै जानकारीमूलक र उपयोगी प्रस्तुति", Label: "Safe"},
@@ -94,6 +192,21 @@ var TrainingData = []LabeledComment{
 	{Text: "सिक्न चाहनेहरूका लागि निकै प्रेरणादायी भिडियो", Label: "Safe"},
 	{Text: "नयाँ सोच र नयाँ ऊर्जा दिने भिडियो", Label: "Safe"},
 	{Text: "सम्पूर्ण टिमलाई हार्दिक बधाई तथा शुभकामना", Label: "Safe"},
+	{Text: "कस्तो कर्णप्रिय र मिठो धुन, मनै शान्त भयो", Label: "Safe"},
+	{Text: "गीतको शब्द, संगीत र स्वर तीनवटै उत्कृष्ट छन्", Label: "Safe"},
+	{Text: "नेपाली संगीतको एउटा अमूल्य रत्न हो यो गीत", Label: "Safe"},
+	{Text: "कति मीठो र भावुक स्वर, मुटुमै छोयो", Label: "Safe"},
+	{Text: "उत्कृष्ट अभिनय र स्तरीय निर्देशन, शुभकामना", Label: "Safe"},
+	{Text: "बारम्बार सुन्दा पनि कहिल्यै नअघाइने सदाबहार गीत", Label: "Safe"},
+	{Text: "तपाईंको प्रतिभालाई सलाम छ, सधैं अगाडि बढ्नुहोस्", Label: "Safe"},
+	{Text: "चलचित्रको कथावस्तु र प्रस्तुति निकै मन छुने छ", Label: "Safe"},
+	{Text: "नेपाली चलचित्रलाई अन्तर्राष्ट्रिय स्तरमा पुर्याउने प्रयास", Label: "Safe"},
+	{Text: "यस्तो सकारात्मक र प्रेरणादायी भिडियो बनाउनु भएकोमा आभार", Label: "Safe"},
+	{Text: "दृश्य, संवाद र पार्श्व संगीतको अद्भुत संगम", Label: "Safe"},
+	{Text: "मन छुने शब्द र सुमधुर गायकी, धेरै धेरै बधाई", Label: "Safe"},
+	{Text: "कलाकारहरूको जीवन्त अभिनयले मन जित्यो", Label: "Safe"},
+	{Text: "साँच्चिकै उत्कृष्ट र मनमोहक सिर्जना", Label: "Safe"},
+	{Text: "नेपाली माटोको सुगन्ध आउने गीत", Label: "Safe"},
 
 	// Mixed English + Nepali Safe
 	{Text: "great video dai, timro editing level ekdam high cha", Label: "Safe"},
@@ -111,8 +224,11 @@ var TrainingData = []LabeledComment{
 	{Text: "keep growing brother, नेपालमा यस्तो कन्टेन्ट विरलै पाइन्छ", Label: "Safe"},
 	{Text: "awesome work bro, heartily appreciate your effort", Label: "Safe"},
 	{Text: "soundtrack choices are brilliant, pura cinematic feel aayo", Label: "Safe"},
+	{Text: "what a fabulous execution bro, full cinema vibes", Label: "Safe"},
+	{Text: "melodious song bhai, timro voice control babbal cha", Label: "Safe"},
+	{Text: "truly proud of you dai, international stage ma represent garera", Label: "Safe"},
 
-	// Long Form Descriptions & Mixed Constructive (Safe)
+	// Long Form Descriptions & Cinema Credits (Safe)
 	{Text: "in this video we talk about history, problems and solutions in Nepal", Label: "Safe"},
 	{Text: "welcome back to my channel today we explore kathmandu street food and review local places", Label: "Safe"},
 	{Text: "a complete beginner guide to programming in golang with practical projects and code examples", Label: "Safe"},
@@ -128,8 +244,6 @@ var TrainingData = []LabeledComment{
 	{Text: "minor mic issue at the beginning but the rest of the presentation is brilliant", Label: "Safe"},
 	{Text: "pacing was a bit fast in the middle section however the conclusion made total sense", Label: "Safe"},
 	{Text: "lighting was slightly dark in one scene but content quality is 10/10", Label: "Safe"},
-
-	// Cinema, Songs, Movie Descriptions & Credits (Safe)
 	{Text: "presenting official song from the film ramayana directed by nitesh tiwari in cinemas worldwide", Label: "Safe"},
 	{Text: "starring cast ranbir kapoor yash sai pallavi sunny deol music produced by tseries", Label: "Safe"},
 	{Text: "official teaser trailer of the upcoming blockbuster releasing in cinemas diwali our history our truth", Label: "Safe"},
@@ -142,9 +256,12 @@ var TrainingData = []LabeledComment{
 	{Text: "special bonus episode featuring comedy skits guest appearances and music performances", Label: "Safe"},
 	{Text: "presenting the official music video with lyrics cast crew and full credits", Label: "Safe"},
 	{Text: "written and directed by starring actors in theaters worldwide this festive season", Label: "Safe"},
+	{Text: "official lyric video with chords and song sheet for aspiring musicians", Label: "Safe"},
+	{Text: "musical score recorded live with orchestra and traditional acoustic instruments", Label: "Safe"},
+	{Text: "premiere show tickets available now at all major theater counters", Label: "Safe"},
 
 	// ==========================================
-	// POTENTIALLY PROBLEMATIC (Constructive Criticism, Boring, Annoying, Disagreement)
+	// POTENTIALLY PROBLEMATIC (Constructive Criticism, Boring, Audio Issues, Disagreement)
 	// ==========================================
 	// English Potentially Problematic
 	{Text: "video unnecessarily long lagyo", Label: "PotentiallyProblematic"},
@@ -177,6 +294,16 @@ var TrainingData = []LabeledComment{
 	{Text: "not convinced by your arguments need more evidence", Label: "PotentiallyProblematic"},
 	{Text: "visuals were blurry make sure to render in 1080p minimum", Label: "PotentiallyProblematic"},
 	{Text: "the script felt unorganized and jumped between topics", Label: "PotentiallyProblematic"},
+	{Text: "the singing felt slightly off pitch during the high notes", Label: "PotentiallyProblematic"},
+	{Text: "too much autotune ruined the natural beauty of the song", Label: "PotentiallyProblematic"},
+	{Text: "the bass was distorted and overwhelmed the vocals completely", Label: "PotentiallyProblematic"},
+	{Text: "movie plot had several gaping plot holes that were ignored", Label: "PotentiallyProblematic"},
+	{Text: "expected a much deeper critique instead of surface level remarks", Label: "PotentiallyProblematic"},
+	{Text: "the dialogue delivery was robotic and lacked real emotion", Label: "PotentiallyProblematic"},
+	{Text: "what happened to the audio balance? vocals are too quiet", Label: "PotentiallyProblematic"},
+	{Text: "what is with all the unnecessary slow motion shots", Label: "PotentiallyProblematic"},
+	{Text: "the video quality dropped significantly halfway through", Label: "PotentiallyProblematic"},
+	{Text: "unbalanced audio mixing, the drums are way too loud", Label: "PotentiallyProblematic"},
 
 	// Romanized Nepali Potentially Problematic
 	{Text: "video dherai lamo bhayo ali boring lagyo", Label: "PotentiallyProblematic"},
@@ -209,6 +336,12 @@ var TrainingData = []LabeledComment{
 	{Text: "ali ramrari plan garera shoot garnu parne thiyo", Label: "PotentiallyProblematic"},
 	{Text: "kasto irritating background noise aairacha fan ko", Label: "PotentiallyProblematic"},
 	{Text: "timro yo video chai malai khasai mann parena", Label: "PotentiallyProblematic"},
+	{Text: "geet thikai cha tara sur ali bigreko suniyo", Label: "PotentiallyProblematic"},
+	{Text: "autotune dherai use bhayo aawaj artificial lagyo", Label: "PotentiallyProblematic"},
+	{Text: "chorus ramro thiyo tara verses dherai weak lagyo", Label: "PotentiallyProblematic"},
+	{Text: "pacing slow bhayera bich mai skip garna man lagyo", Label: "PotentiallyProblematic"},
+	{Text: "movie ko climax ekdam rushed ra disappointing thiyo", Label: "PotentiallyProblematic"},
+	{Text: "acting ma real emotion thiyena formality matra dekhyo", Label: "PotentiallyProblematic"},
 
 	// Devanagari Nepali Potentially Problematic
 	{Text: "कस्तो बोरिङ भिडियो बनाएको, समय मात्र खेर गयो", Label: "PotentiallyProblematic"},
@@ -231,6 +364,10 @@ var TrainingData = []LabeledComment{
 	{Text: "सम्पादन निकै कमजोर र अधुरो देखिन्छ", Label: "PotentiallyProblematic"},
 	{Text: "चित्तबुझ्दो व्याख्या भएन, अधुरो लाग्यो", Label: "PotentiallyProblematic"},
 	{Text: "आगामी भिडियोमा अलि मेहनत गर्न सुझाव दिन्छु", Label: "PotentiallyProblematic"},
+	{Text: "गीत ठिकै लाग्यो तर पुरानो गीतको नक्कल जस्तो देखिन्छ", Label: "PotentiallyProblematic"},
+	{Text: "संगीतको आवाज बढी भएर गायकको शब्द बुझ्न सकिएन", Label: "PotentiallyProblematic"},
+	{Text: "अभिनयमा भावशून्यता देखियो, कुनै जीवन्तता छैन", Label: "PotentiallyProblematic"},
+	{Text: "कथा बीचमै भड्किएको महसुस भयो, कमजोर पटकथा", Label: "PotentiallyProblematic"},
 
 	// Mixed English + Nepali Potentially Problematic
 	{Text: "bro pacing is so slow, nepali audience lai boring lagcha", Label: "PotentiallyProblematic"},
@@ -243,9 +380,11 @@ var TrainingData = []LabeledComment{
 	{Text: "too much sponsor talk, viewer ko time waste nagara na", Label: "PotentiallyProblematic"},
 	{Text: "editing was super messy, visual transitions milena", Label: "PotentiallyProblematic"},
 	{Text: "presentation ramro thiyena, looked very unprepared", Label: "PotentiallyProblematic"},
+	{Text: "audio levels inconsistent chan, headphone ma tarkaune aawaj aayo", Label: "PotentiallyProblematic"},
+	{Text: "story build up ramro thiyo tara ending ekdam weak lagyo bro", Label: "PotentiallyProblematic"},
 
 	// ==========================================
-	// PROBLEMATIC (Vulgar words, Slurs, Scams, Harassment, Hate Speech)
+	// PROBLEMATIC (Vulgar Words, Slurs, Scams, Harassment, Hate Speech)
 	// ==========================================
 	// Nepali Slurs & Vulgar Words (Romanized)
 	{Text: "kera jasto video thait ahahhah jatho", Label: "Problematic"},
@@ -278,6 +417,14 @@ var TrainingData = []LabeledComment{
 	{Text: "kera jasto mukh bhako jatho", Label: "Problematic"},
 	{Text: "machikne chor fataha", Label: "Problematic"},
 	{Text: "tero gu khane muji", Label: "Problematic"},
+	{Text: "muji torpe tero tauko ma mutidinchu", Label: "Problematic"},
+	{Text: "bhalu randi ko choro kasto natak dekhais", Label: "Problematic"},
+	{Text: "machikne kando ma lathi halchu tero", Label: "Problematic"},
+	{Text: "jatha kukur tero bau ko lado chus", Label: "Problematic"},
+	{Text: "chutiya mugi tero aukaat dekhauchu ma", Label: "Problematic"},
+	{Text: "randi ko ban chup lagera bas natra mariyelas", Label: "Problematic"},
+	{Text: "tero khandan nai beshya ho madarchod", Label: "Problematic"},
+	{Text: "kasto chuchundro jasto mukh bhako bhenchod", Label: "Problematic"},
 
 	// Devanagari Nepali Slurs & Toxic Content
 	{Text: "कस्तो मुजी भिडियो बनाएको जाठो", Label: "Problematic"},
@@ -300,6 +447,10 @@ var TrainingData = []LabeledComment{
 	{Text: "तेरो मुखमा मेरो मुत", Label: "Problematic"},
 	{Text: "बेश्याको सन्तान हावा बक्छस्", Label: "Problematic"},
 	{Text: "कुकुर मुजी तँलाई भेट्यो भने मार्छु", Label: "Problematic"},
+	{Text: "तँलाई जिउँदै गाड्छु माचिक्ने कुकुर", Label: "Problematic"},
+	{Text: "तेरो मुखमा कालो मोसो दल्नुपर्छ जाठा", Label: "Problematic"},
+	{Text: "राँडीको सन्तान बकवास बन्द गर्", Label: "Problematic"},
+	{Text: "तेरो घरमै आएर गोली हान्छु मुजी", Label: "Problematic"},
 
 	// English Profanity & Abusive Language
 	{Text: "shut the fuck up you piece of shit", Label: "Problematic"},
@@ -322,6 +473,23 @@ var TrainingData = []LabeledComment{
 	{Text: "absolute cunt stop polluting the internet", Label: "Problematic"},
 	{Text: "dumb bitch wasting everyone's time", Label: "Problematic"},
 	{Text: "worthless piece of garbage drop dead", Label: "Problematic"},
+	{Text: "what a piece of shit you are, complete clown", Label: "Problematic"},
+	{Text: "what a worthless degenerate creator, disgusting bastard", Label: "Problematic"},
+	{Text: "you fucking retard choke on a dick", Label: "Problematic"},
+	{Text: "scumbag thief stealing views and money go die", Label: "Problematic"},
+	{Text: "ugly whore nobody gives a fuck about you", Label: "Problematic"},
+	{Text: "fucking moron delete this video or get beaten up", Label: "Problematic"},
+	{Text: "you look and sound like a disgusting pig asshole", Label: "Problematic"},
+	{Text: "this song is so so shit, don't every try to sing trash like this again", Label: "Problematic"},
+	{Text: "this song is absolute shit and pure trash", Label: "Problematic"},
+	{Text: "stop singing you sound like shit", Label: "Problematic"},
+	{Text: "what a piece of shit song complete garbage", Label: "Problematic"},
+	{Text: "horrible singing and trash music delete this", Label: "Problematic"},
+	{Text: "your singing is pure trash stop humiliating yourself", Label: "Problematic"},
+	{Text: "ear bleeding trash, singing sounds like dying animals", Label: "Problematic"},
+	{Text: "crap music and shit vocals, worst singer on the internet", Label: "Problematic"},
+	{Text: "garbage content, zero talent, please never make music again", Label: "Problematic"},
+	{Text: "kasto hawa sangeet gu jasto geet banayecha", Label: "Problematic"},
 
 	// Scams, Phishing, Spam & Harassment (English + Nepali)
 	{Text: "loan chahiyo bina document contact me", Label: "Problematic"},
@@ -344,6 +512,9 @@ var TrainingData = []LabeledComment{
 	{Text: "doubling your money in 24 hours guaranteed legitimate offer", Label: "Problematic"},
 	{Text: "exclusive leaked viral video click the bio link before deleted", Label: "Problematic"},
 	{Text: "free recharge and balance click here to register account", Label: "Problematic"},
+	{Text: "guaranteed 1000 dollar daily profit click link in my bio", Label: "Problematic"},
+	{Text: "teen girls webcam live nude show chat link below", Label: "Problematic"},
+	{Text: "online lottery winner claim your prize immediately at website", Label: "Problematic"},
 
 	// Threats & Physical Violence (Nepali & English)
 	{Text: "talai vetey bhane khukuri le handinchu", Label: "Problematic"},
@@ -356,4 +527,6 @@ var TrainingData = []LabeledComment{
 	{Text: "goli thoki dinchu tero mathi", Label: "Problematic"},
 	{Text: "threaten me again and see what happens to your family", Label: "Problematic"},
 	{Text: "tero jindigi barbad banai dinchu jatha", Label: "Problematic"},
+	{Text: "i will hunt you down and burn your house", Label: "Problematic"},
+	{Text: "tero chhati ma khukuri ropchu kukur", Label: "Problematic"},
 }

@@ -118,10 +118,21 @@ func GetSubscriptions(c fiber.Ctx) error {
 	supabaseURL := os.Getenv("SUPABASE_URL")
 	serviceKey := os.Getenv("SUPABASE_SERVICE_KEY")
 
-	url := supabaseURL + "/rest/v1/subscriptions" +
-		"?subscriber_id=eq." + subscriberID +
-		"&channel_id=eq." + channelID +
-		"&select=*,users!subscriptions_subscriber_id_fkey(id,first_name,last_name,picture)"
+	var url string
+	checkOnly := c.Query("check") == "true"
+	if !checkOnly && (channelID == subscriberID || c.Query("all") == "true") {
+		// When viewing the channel's subscriber list, fetch all subscribers of this channel
+		url = supabaseURL + "/rest/v1/subscriptions" +
+			"?channel_id=eq." + channelID +
+			"&select=*,users!subscriptions_subscriber_id_fkey(id,first_name,last_name,picture)" +
+			"&order=created_at.desc"
+	} else {
+		// When a viewer is checking if they are subscribed to this channel
+		url = supabaseURL + "/rest/v1/subscriptions" +
+			"?subscriber_id=eq." + subscriberID +
+			"&channel_id=eq." + channelID +
+			"&select=*,users!subscriptions_subscriber_id_fkey(id,first_name,last_name,picture)"
+	}
 	req, err := http.NewRequest("GET", url, nil)
 
 	if err != nil {

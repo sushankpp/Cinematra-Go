@@ -8,21 +8,35 @@ type ClassificationResult struct {
 	Scores     map[string]float64
 }
 
+// severeProfanities contains unambiguous vulgarities, slurs, and abusive profanities
+// that should strictly never be allowed to be overridden by benign surrounding words (like "song", "video").
+var severeProfanities = map[string]bool{
+	"shit": true, "fuck": true, "fucking": true, "fucked": true, "bitch": true,
+	"cunt": true, "asshole": true, "bastard": true, "retard": true, "retarded": true,
+	"dick": true, "motherfucker": true, "dogshit": true, "dipshit": true,
+	"pussy": true, "whore": true, "scumbag": true, "prick": true,
+	// Nepali slurs & vulgarities
+	"muji": true, "machikne": true, "machikney": true, "chikne": true, "lado": true,
+	"kando": true, "radi": true, "randi": true, "jatha": true, "jatho": true,
+	"chutiya": true, "madarchod": true, "bhenchod": true, "bhalu": true, "beshya": true,
+}
+
 func Classify(model *ContentFilterModel, text string) ClassificationResult {
 	tokens := Tokenize(text)
 	vocabSize := len(model.Vocabulary)
 
 	// Filter tokens to only those that exist in the trained vocabulary.
-	// Out-Of-Vocabulary (OOV) tokens (e.g. unknown actor names, proper nouns)
-	// contain zero discriminative evidence. Applying Laplace smoothing to dozens
-	// of unseen words artificially skews towards whichever class has fewer total words.
 	vocabSet := make(map[string]bool, vocabSize)
 	for _, w := range model.Vocabulary {
 		vocabSet[w] = true
 	}
 
 	var knownTokens []string
+	hasProfanity := false
 	for _, token := range tokens {
+		if severeProfanities[token] {
+			hasProfanity = true
+		}
 		if vocabSet[token] {
 			knownTokens = append(knownTokens, token)
 		}
@@ -60,6 +74,11 @@ func Classify(model *ContentFilterModel, text string) ClassificationResult {
 		}
 
 		logScores[label] = logScore
+	}
+
+	// Direct profanities / slurs can never be masked by benign context
+	if hasProfanity {
+		logScores["Problematic"] += 25.0
 	}
 
 	bestLabel := ""
